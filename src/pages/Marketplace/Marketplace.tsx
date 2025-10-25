@@ -128,12 +128,12 @@ export const Marketplace = () => {
             Marketplace
           </h1>
           <p
-            className="text-gray-400 leading-relaxed mb-4"
+            className="text-gray-400 leading-relaxed mb-4 max-w-3xl mx-auto"
             style={{
               fontSize: "clamp(12px, 3.5vw, 16px)",
             }}
           >
-            Discover, buy, and sell moments. Explore the world of Crowdflix!
+            Own verified, limited-edition movie moments — buy, sell, and trade the scenes that define fandom.
           </p>
 
           {/* Quick Stats */}

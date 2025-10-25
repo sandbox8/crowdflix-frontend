@@ -33,18 +33,18 @@ export const MobileHeader = () => {
       <Drawer
         classNames={{
           header: "hidden",
-          body: "p-0",
+          body: "p-0 ",
           root: "p-0 absolute",
-          content: "bg-gradient-to-br from-black to-black/95 backdrop-blur-xl border-b border-white/10",
+          content: "bg-[#1A1A1A]/70 backdrop-blur-xs rounded-b-3xl p-0",
         }}
         position="top"
+        h={375}
         opened={opened}
         onClose={() => setOpened(false)}
       >
         <Drawer.Body>
-          <div className="flex items-center justify-center flex-col gap-8 py-8 px-5">
-            {/* Header Row */}
-            <div className="flex items-center justify-between w-full max-w-[545px]">
+          <div className="flex  items-center justify-center flex-col gap-4">
+            <div className="flex px-5 items-center pt-5 justify-between gap-4 w-full max-w-[545px]">
               <Burger
                 color="white"
                 opened={opened}
@@ -52,102 +52,68 @@ export const MobileHeader = () => {
               />
               <Logo className="" />
               {user ? (
-                <Menu
-                  opened={isMenuOpen}
-                  trigger="click"
-                  position="bottom-end"
-                  onOpen={() => setIsMenuOpen(true)}
-                  onClose={() => setIsMenuOpen(false)}
-                >
-                  <Menu.Target>
-                    <Avatar
-                      className="cursor-pointer"
-                      src={user.profile_picture_url}
-                      name={user.username || ""}
-                      size="lg"
-                    />
-                  </Menu.Target>
-                  <Menu.Dropdown
-                    classNames={{
-                      dropdown: "bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/10",
-                      item: "text-white hover:bg-white/10",
-                    }}
-                  >
-                    <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
+                <div className="flex items-center gap-2">
+                  <Avatar
+                    src={user.profile_picture_url}
+                    name={user.username || ""}
+                    size="lg"
+                  />
+                </div>
               ) : (
-                <Button 
-                  onClick={() => setOpenedAuth(true)}
-                  className="h-10 bg-gradient-to-r from-[#2AA2FD] to-[#1e90ff] hover:from-[#1e90ff] hover:to-[#2AA2FD] text-white font-bold uppercase tracking-wider"
-                >
-                  Sign In
-                </Button>
+                <Button onClick={() => setOpenedAuth(true)}>Sign In</Button>
               )}
             </div>
 
-            {/* Navigation Links */}
-            <div className="flex w-full flex-col gap-3 max-w-[400px]">
+            <div className="flex w-full flex-col px-5 gap-4 mt-[55px] items-center">
               <Link
-                to="/profile"
-                onClick={() => setOpened(false)}
                 className={clsx(
-                  "flex items-center justify-center py-3 h-12 border-2 rounded-2xl w-full font-bold uppercase tracking-wider transition-all duration-300",
+                  "flex items-center justify-center py-3 h-[40px] border rounded-full shrink-0 w-full  bg-[#F51F2D26] border-[#FF4A3C] hover:bg-[#F51F2D26] hover:text-white transition-all duration-300 font-medium",
                   {
-                    "bg-gradient-to-r from-[#2AA2FD] to-[#1e90ff] border-[#2AA2FD] text-white shadow-lg":
-                      pathname === "/profile",
-                    "bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30":
-                      pathname !== "/profile",
+                    "bg-[#F51F2D26] border-[#FF4A3C] text-white":
+                      pathname === "/my-collection",
+                    "bg-transparent text-[#FFCBCD]":
+                      pathname !== "/my-collection",
                   },
                 )}
+                to="/profile"
               >
                 My Collection
               </Link>
-
-              <Link
-                to="/"
-                onClick={() => setOpened(false)}
-                className={clsx(
-                  "flex items-center justify-center py-3 h-12 border-2 rounded-2xl w-full font-bold uppercase tracking-wider transition-all duration-300",
-                  {
-                    "bg-gradient-to-r from-[#2AA2FD] to-[#1e90ff] border-[#2AA2FD] text-white shadow-lg":
-                      pathname === "/",
-                    "bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30":
-                      pathname !== "/",
-                  },
-                )}
-              >
-                Home
-              </Link>
-
-              <Link
-                to="/marketplace"
-                onClick={() => setOpened(false)}
-                className={clsx(
-                  "flex items-center justify-center py-3 h-12 border-2 rounded-2xl w-full font-bold uppercase tracking-wider transition-all duration-300",
-                  {
-                    "bg-gradient-to-r from-[#2AA2FD] to-[#1e90ff] border-[#2AA2FD] text-white shadow-lg":
-                      pathname === "/marketplace",
-                    "bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30":
-                      pathname !== "/marketplace",
-                  },
-                )}
-              >
-                Marketplace
-              </Link>
+              <div className="flex w-full gap-4 justify-center  text-white ">
+                <Link
+                  className={clsx(
+                    "flex items-center justify-center py-3 h-[40px] border rounded-full  w-full  max-w-[160px] bg-[#F51F2D26] border-[#FF4A3C] hover:bg-[#F51F2D26] hover:text-white transition-all duration-300 font-medium",
+                    {
+                      "bg-[#F51F2D26] border-[#FF4A3C] text-white":
+                        pathname === "/",
+                      "bg-transparent text-[#FFCBCD]": pathname !== "/",
+                    },
+                  )}
+                  to="/"
+                >
+                  Home
+                </Link>
+                <div className=" bg-gradient-to-b from-[#356FB4] w-full  to-[#693968] max-w-[160px] rounded-full flex items-center justify-center p-[1px]">
+                  <Link
+                    className={clsx(
+                      "flex items-center justify-center py-3  rounded-full w-full max-w-[160px] h-[40px]  transition-all duration-300 font-medium",
+                      {
+                        "bg-[#170B26] text-white": pathname === "/marketplace",
+                        " bg-black text-[#CBF6FF]": pathname !== "/marketplace",
+                      },
+                    )}
+                    to="/marketplace"
+                  >
+                    Marketplace
+                  </Link>
+                </div>
+              </div>
             </div>
 
-            {/* Social Icons - Updated to blue */}
-            <div className="flex items-center gap-6 mt-4">
-              <a href="#" className="text-[#2AA2FD] hover:text-[#1e90ff] transition-colors">
-                <Instagram size={28} />
-              </a>
-              <a href="#" className="text-[#2AA2FD] hover:text-[#1e90ff] transition-colors">
-                <Facebook size={28} />
-              </a>
-              <a href="#" className="text-[#2AA2FD] hover:text-[#1e90ff] transition-colors">
-                <Xrp size={28} />
-              </a>
+            <div className="flex   items-center gap-5 justify-end mt-30">
+              <Instagram size={35} color="#85CBFF" />
+              <Facebook size={35} color="#85CBFF" />
+              <Xrp size={35} color="#85CBFF" />
             </div>
           </div>
         </Drawer.Body>

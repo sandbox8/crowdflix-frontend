@@ -9,13 +9,13 @@ export const AuthLayout = ({
   onClose: () => void;
 }) => {
   return (
-    <div className="flex flex-col h-screen w-screen  bg-[url('/images/heroBg.png')] bg-cover bg-center bg-scale  bg-no-repeat ">
-      <div className="flex w-full items-center justify-center lg:justify-start">
+    <div className="flex flex-col h-screen w-screen bg-black">
+      <div className="flex w-full items-center justify-center lg:justify-start p-8">
         <Logo />
 
         <Exit
           onClick={onClose}
-          className="absolute top-[40px] right-[40px] cursor-pointer"
+          className="absolute top-[40px] right-[40px] cursor-pointer text-white hover:text-white/80 transition-colors"
         />
       </div>
       <div className="flex-1 flex items-center justify-center px-5 lg:px-0">
