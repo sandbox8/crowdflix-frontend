@@ -111,4 +111,56 @@ const PaymentFailure: React.FC = () => {
   );
 };
 
-export { PaymentSuccess, PaymentFailure };
+const PaymentCancel: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const orderId = searchParams.get('order_id');
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] to-[#1A1A1A] flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-[#1A1A1A]/70 backdrop-blur-[35px] rounded-[30px] p-8 text-center border border-[#FFC03F]/20">
+        <div className="mb-6">
+          <XCircle className="w-16 h-16 text-[#FFC03F] mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-white mb-2">Payment Cancelled</h1>
+          <p className="text-white/70">
+            You cancelled the payment. No charges were made.
+          </p>
+        </div>
+
+        {orderId && (
+          <div className="bg-[#1A1A1A] border border-[#FFC03F]/20 rounded-lg p-3 mb-6">
+            <p className="text-white/60 text-xs">Order ID</p>
+            <p className="text-white/80 text-sm font-mono break-all">
+              {orderId}
+            </p>
+          </div>
+        )}
+
+        <div className="space-y-3">
+          <Link to="/marketplace" className="block">
+            <Button className="w-full bg-gradient-to-r from-[#2AA2FD] to-[#BA55D3] text-white font-semibold rounded-full">
+              Back to Marketplace
+            </Button>
+          </Link>
+          
+          <Link to="/" className="block">
+            <Button 
+              variant="outline" 
+              className="w-full border-[#FFC03F]/40 text-[#FFDD99] hover:bg-[#FFC03F]/10 rounded-full"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
+          </Link>
+        </div>
+
+        <div className="mt-6 pt-6 border-t border-white/10">
+          <p className="text-white/60 text-sm">
+            Your items are still available. You can try purchasing again whenever you're ready.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export { PaymentSuccess, PaymentFailure, PaymentCancel };

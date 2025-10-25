@@ -5,7 +5,7 @@ import { AppLayout } from "../layouts/AppLayout/AppLayout";
 import { EnhancedDetails } from "@/pages/Details/EnhancedDetails";
 import { Marketplace } from "@/pages/Marketplace/Marketplace";
 import Payment from "@/pages/Payment/Payment";
-import { PaymentSuccess, PaymentFailure } from "@/pages/Payment/PaymentPages";
+import { PaymentSuccess, PaymentFailure, PaymentCancel } from "@/pages/Payment/PaymentPages";
 import { Profile } from "@/pages/Profile/Profile";
 import { PrivateRoute } from "./PrivateRoute";
 import SpecificMoment from "@/pages/SpecificMoment/SpecififcMoment";
@@ -54,6 +54,14 @@ export const appRoutes = createBrowserRouter([
     element: (
       <AppLayout>
         <PaymentFailure />
+      </AppLayout>
+    ),
+  },
+  {
+    path: "/payment/cancel",
+    element: (
+      <AppLayout>
+        <PaymentCancel />
       </AppLayout>
     ),
   },
