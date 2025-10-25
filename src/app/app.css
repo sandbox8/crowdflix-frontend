@@ -13,6 +13,27 @@
 
 /* stylelint-disable-next-line scss/at-rule-no-unknown */
 @theme {
+  /* Brand Colors - Consistent across all pages */
+  --color-primary-blue: #2AA2FD;
+  --color-brand-red: #FF4A3C;
+  --color-brand-orange: #EF870A;
+  --color-light-blue: #CBF6FF;
+  --color-light-red: #FFCBCD;
+  
+  /* Rarity Colors */
+  --color-legendary: #8B5CF6;
+  --color-rare: #FF4A3C;
+  --color-epic: #2AA2FD;
+  --color-common: #FFC03F;
+  
+  /* Neutrals */
+  --color-bg-black: #000000;
+  --color-bg-dark: #0A0A0A;
+  --color-bg-card: #1A1A1A;
+  --color-text-white: #FFFFFF;
+  --color-text-muted: rgba(255, 255, 255, 0.6);
+
+  /* Animations */
   --animate-gradient-move: gradient-move 1s ease infinite alternate;
 
   @keyframes gradient-move {
@@ -26,6 +47,35 @@
   }
 
   --text-opacity-50: 0.5;
+}
+
+/* Global Page Background - Consistent across all pages */
+body {
+  background: #000000;
+  color: #FFFFFF;
+}
+
+/* Ensure all pages use consistent black background */
+.min-h-screen {
+  background: #000000;
+}
+
+/* Consistent glassmorphism effects */
+.glass-card {
+  background: rgba(26, 26, 26, 0.7);
+  backdrop-filter: blur(35px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+}
+
+/* Consistent gradient buttons */
+.gradient-button-primary {
+  background: linear-gradient(135deg, #FF4A3C 0%, #FF6B5E 25%, #2AA2FD 75%, #CBF6FF 100%);
+  box-shadow: 0 0 60px rgba(255, 74, 60, 0.6), 0 0 100px rgba(42, 162, 253, 0.5);
+}
+
+.gradient-button-secondary {
+  background: linear-gradient(to right, #2AA2FD, #1e90ff);
 }
 
 .hourglass-card {

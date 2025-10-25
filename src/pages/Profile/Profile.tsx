@@ -82,127 +82,110 @@ export const Profile = () => {
     }
   }, [refetch]);
   return (
-    <div className="flex w-full flex-col gap-4 relative ">
-      <div className="absolute top-15 flex justify-between w-full ">
-        <img
-          src="/images/marketplace_hero_1.png"
-          className=" h-fit   object-cover "
-          alt="marketplace"
-        />
-        <img
-          src="/images/marketplace_hero_2.png"
-          className=" overflow-hidden h-fit  object-cover"
-          alt="marketplace"
-        />
-      </div>
-      <div className="flex w-full text-center justify-center gap-[15px] z-10 flex-col items-center mt-20">
-        <div className="flex  justify-center items-center border border-[#FD4725]/40 p-3 bg-[#FD4725]/5 rounded-full">
-          <img
-            src={user?.profile_picture_url || "/images/userpic.png"}
-            className="w-[127px] h-[127px] rounded-full object-cover"
-            alt="user"
-          />
-        </div>
-        <h1 className="text-[52px] font-semibold leading-6 text-white">
-          {user?.username}
-        </h1>
-        <div className="flex wf items-center bg-[#EF870A]/20 gap-2.5 px-2.5 py-[5px] mt-2 rounded-full">
-          <div className="flex items-center gap-[5px]">
-            <img src="/images/flag.svg" className="size-4" alt="verified" />
-            <p className="text-white text-xs">
-              <strong className="text-[#FFDEB3]">United States |</strong>{" "}
-              <span className="text-[#FFDEB3]">Joined November, 2024 </span>
-            </p>
+    <div className="min-h-screen bg-black text-white pt-20 pb-12">
+      <div className="container mx-auto px-4 max-w-6xl">
+        {/* Profile Header */}
+        <div className="text-center mb-12">
+          <div className="flex justify-center items-center mb-6">
+            <div className="relative">
+              <img
+                src={user?.profile_picture_url || "/images/userpick.png"}
+                className="w-32 h-32 rounded-full object-cover border-4 border-[#2AA2FD]/20"
+                alt="user"
+              />
+              <button
+                onClick={() => setIsEditProfileOpen(true)}
+                className="absolute bottom-0 right-0 w-10 h-10 bg-[#2AA2FD] rounded-full flex items-center justify-center border-4 border-black hover:bg-[#1e90ff] transition-all"
+              >
+                <Edit size={18} className="text-white" />
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2.5">
-          <div
-            className="w-10 h-10 cursor-pointer border rounded-full border-[#FFAD14]/40 flex items-center justify-center bg-[#FFAD14]/5"
-            onClick={() => setIsEditProfileOpen(true)}
-          >
-            <Edit size={24} className="text-[#FFAD14]" />
-          </div>
-          {/* <div
-            className="w-10 h-10 cursor-pointer border rounded-full bg-[#2AA2FD]/5 border-[#2AA2FD]/40 flex items-center justify-center"
-            onClick={() => setIsFilterOpen(true)}
-          >
-            <ShareIcon className="size-6" />
-          </div> */}
-        </div>
-      </div>
 
-      {/* Collection Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 max-w-4xl mx-auto">
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6 text-center">
-          <div className="text-3xl font-black text-white mb-2">
-            {editions?.length || 0}
-          </div>
-          <div className="text-white/60 text-sm uppercase tracking-wider">
-            Total Moments
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-[#2AA2FD]/10 to-[#2AA2FD]/5 backdrop-blur-xl rounded-2xl border border-[#2AA2FD]/20 p-6 text-center">
-          <div className="text-3xl font-black text-[#2AA2FD] mb-2">
-            {editions?.filter((e) => e.moment.tier === "legendary").length || 0}
-          </div>
-          <div className="text-white/60 text-sm uppercase tracking-wider">
-            Legendary
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-orange-500/10 to-red-500/5 backdrop-blur-xl rounded-2xl border border-orange-500/20 p-6 text-center">
-          <div className="text-3xl font-black text-orange-400 mb-2">
-            {editions?.filter((e) => e.moment.tier === "rare").length || 0}
-          </div>
-          <div className="text-white/60 text-sm uppercase tracking-wider">
-            Rare
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-6 text-center">
-          <div className="text-3xl font-black text-purple-400 mb-2">
-            {editions?.filter((e) => e.moment.tier === "epic").length || 0}
-          </div>
-          <div className="text-white/60 text-sm uppercase tracking-wider">
-            Epic
-          </div>
-        </div>
-      </div>
+          <h1 className="font-black text-5xl lg:text-6xl uppercase mb-3 bg-gradient-to-r from-white via-white to-gray-300 bg-clip-text text-transparent">
+            {user?.username}
+          </h1>
 
-      <div className="flex flex-col-reverse lg:flex-row w-full justify-between gap-4 mt-10">
-        <div className="flex lg:w-full justify-start lg:justify-start gap-4 z-10 overflow-x-auto" />
-        <div className="flex w-full  lg:flex-row gap-4 justify-end">
-          <Input
-            radius={100}
-            className="lg:max-w-[240px] w-full "
-            classNames={{
-              input:
-                "bg-[#1A1A1A] border  h-[40px] border-[#FFC03F]/40 text-[#FFDD99] placeholder:text-[#FFDD99] bg-[#FD4725]/5",
-              section: "shrink-0 ",
-            }}
-            placeholder="Search"
-            leftSection={
-              <SearchNormal1 className="shrink-0" size={20} color="#FFDD99" />
-            }
-            onChange={(event) => debouncedSearch(event.target.value)}
-          />
-          <div className="flex lg:w-auto gap-2.5">
+          <div className="flex items-center justify-center gap-2 text-white/60 mb-8">
+            <img src="/images/flag.svg" className="w-4 h-4" alt="country" />
+            <span>United States</span>
+            <span>•</span>
+            <span>Joined November, 2024</span>
+          </div>
+        </div>
+
+        {/* Collection Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6 text-center">
+            <div className="text-3xl font-black text-white mb-2">
+              {editions?.length || 0}
+            </div>
+            <div className="text-white/60 text-sm uppercase tracking-wider">
+              Total Moments
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-purple-600/10 to-purple-600/5 backdrop-blur-xl rounded-2xl border border-purple-600/20 p-6 text-center">
+            <div className="text-3xl font-black text-purple-400 mb-2">
+              {editions?.filter((e) => e.moment.tier === "legendary").length || 0}
+            </div>
+            <div className="text-white/60 text-sm uppercase tracking-wider">
+              Legendary
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-orange-500/10 to-red-500/5 backdrop-blur-xl rounded-2xl border border-orange-500/20 p-6 text-center">
+            <div className="text-3xl font-black text-orange-400 mb-2">
+              {editions?.filter((e) => e.moment.tier === "rare").length || 0}
+            </div>
+            <div className="text-white/60 text-sm uppercase tracking-wider">
+              Rare
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-[#2AA2FD]/10 to-[#2AA2FD]/5 backdrop-blur-xl rounded-2xl border border-[#2AA2FD]/20 p-6 text-center">
+            <div className="text-3xl font-black text-[#2AA2FD] mb-2">
+              {editions?.filter((e) => e.moment.tier === "epic").length || 0}
+            </div>
+            <div className="text-white/60 text-sm uppercase tracking-wider">
+              Epic
+            </div>
+          </div>
+        </div>
+
+        {/* Search & Filter - Consistent with Marketplace */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
+          <h2 className="font-black text-3xl uppercase text-white">
+            My Collection
+          </h2>
+          <div className="flex gap-3">
+            <Input
+              radius={100}
+              className="w-full sm:w-[240px]"
+              classNames={{
+                input:
+                  "bg-black/40 border h-[40px] border-[#2AA2FD]/40 text-white placeholder:text-white/50 backdrop-blur-sm",
+                section: "shrink-0",
+              }}
+              placeholder="Search moments..."
+              leftSection={<SearchNormal1 className="shrink-0" size={20} color="#2AA2FD" />}
+              onChange={(event) => debouncedSearch(event.target.value)}
+            />
             <div
-              className="w-10 h-10 cursor-pointer border rounded-full shrink-0  border-[#2AA2FD]/40 flex items-center justify-center"
+              className="w-10 h-10 cursor-pointer border rounded-full border-[#2AA2FD]/40 flex items-center justify-center hover:bg-[#2AA2FD]/10 transition-all"
               onClick={() => setIsFilterOpen(true)}
             >
               <Filter size={24} color="#2AA2FD" />
             </div>
           </div>
         </div>
-      </div>
-      <div className="flex w-full min-h-[350px]  mt-10 ">
-        <div className="flex w-full justify-center">
-          <div className="flex   items-center lg:justify-between justify-center gap-4 flex-wrap">
-            {isLoading || isRefetching ? (
-              <div className="flex w-full justify-center h-[350px] items-center">
-                <Loader size="xl" color="#2AA2FD" />
-              </div>
-            ) : editions && editions.length > 0 ? (
-              editions.map((item) => (
+
+        {/* Moments Grid */}
+        <div className="min-h-[350px]">
+          {isLoading || isRefetching ? (
+            <div className="flex w-full justify-center h-[350px] items-center">
+              <Loader size="xl" color="#2AA2FD" />
+            </div>
+          ) : editions && editions.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {editions.map((item) => (
                 <HoverVideoMomentCard
                   key={item.edition_id}
                   moment={item.moment}
@@ -212,28 +195,28 @@ export const Profile = () => {
                     );
                   }}
                 />
-              ))
-            ) : (
-              <div className="flex w-full justify-center items-center h-[350px] flex-col gap-4">
-                <div className="text-center">
-                  <h3 className="text-white text-2xl font-bold mb-2">
-                    No Moments Yet
-                  </h3>
-                  <p className="text-white/60 mb-6">
-                    Start your collection by purchasing moments from the
-                    marketplace
-                  </p>
-                  <UIButton
-                    onClick={() => navigate("/marketplace")}
-                    className="bg-gradient-to-r from-[#2AA2FD] to-[#1e90ff] hover:from-[#1e90ff] hover:to-[#2AA2FD] text-white font-bold px-8"
-                  >
-                    Browse Marketplace
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </UIButton>
-                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex w-full justify-center items-center h-[350px] flex-col gap-4">
+              <div className="text-center max-w-md">
+                <h3 className="text-white text-3xl font-black uppercase mb-3">
+                  No Moments Yet
+                </h3>
+                <p className="text-white/60 mb-6 leading-relaxed">
+                  Start your collection by purchasing moments from the
+                  marketplace
+                </p>
+                <UIButton
+                  onClick={() => navigate("/marketplace")}
+                  className="bg-gradient-to-r from-[#2AA2FD] to-[#1e90ff] hover:from-[#1e90ff] hover:to-[#2AA2FD] text-white font-black text-lg uppercase tracking-wider h-14 px-8 shadow-lg transition-all hover:scale-[1.02]"
+                >
+                  <ArrowRight className="w-5 h-5 mr-2" />
+                  Browse Marketplace
+                </UIButton>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
       <Drawer
@@ -243,37 +226,38 @@ export const Profile = () => {
         size="lg"
         classNames={{
           header: "hidden",
-          body: "p-0 bg-[#121212]",
-          content: "p-0 bg-[#121212]",
+          body: "p-0 bg-black",
+          content: "p-0 bg-black border-l border-white/10",
         }}
       >
-        <div className="flex shrink-0 w-full flex-col gap-4 p-2.5 pt-5 bg-[#121212]  rounded-[30px]">
-          <div className="flex w-full px-5 justify-between items-center">
-            <Button
-              classNames={{
-                root: "bg-transparent underline text-[#2AA2FD]",
-              }}
-              onClick={resetFilters}
-            >
-              Clear All
-            </Button>
-            <h1
-              onClick={() => setIsFilterOpen(false)}
-              className="text-[22px] cursor-pointer flex items-center gap-2.5 font-semibold text-white"
-            >
-              Add filters
-              <ArrowRight size={24} />
+        <div className="flex shrink-0 w-full flex-col gap-4 p-6 bg-black">
+          <div className="flex w-full justify-between items-center mb-4">
+            <h1 className="text-2xl font-black uppercase text-white">
+              Filters
             </h1>
+            <button
+              onClick={() => setIsFilterOpen(false)}
+              className="text-white/60 hover:text-white transition-colors"
+            >
+              <ArrowRight size={24} />
+            </button>
           </div>
+          <Button
+            onClick={resetFilters}
+            variant="outline"
+            className="border-[#2AA2FD]/40 text-[#2AA2FD] hover:bg-[#2AA2FD]/10 w-full"
+          >
+            Clear All Filters
+          </Button>
           <div className="flex w-full items-center flex-col gap-2.5">
             <Accordion title="Status" badge={activeStatus ? "1" : undefined}>
-              <div className="flex w-full items-center flex-col gap-2 mt-[15px]">
-                <div className="flex gap-2.5 items-center  justify-between">
+              <div className="flex w-full items-center flex-col gap-2 mt-4">
+                <div className="flex gap-3 items-center w-full">
                   <div
                     className={clsx(
-                      "rounded-full flex font-bold -tracking-normal leading-4 items-center justify-center border h-[40px] border-white/20 text-white px-4  cursor-pointer",
+                      "rounded-full flex font-bold uppercase tracking-wider text-sm items-center justify-center border h-[40px] border-white/20 text-white px-6 cursor-pointer transition-all hover:bg-white/10",
                       {
-                        "bg-white text-black!": activeStatus === "listed",
+                        "bg-[#2AA2FD] border-[#2AA2FD] text-white": activeStatus === "listed",
                       },
                     )}
                     onClick={() => setActiveStatus("listed")}
@@ -282,26 +266,15 @@ export const Profile = () => {
                   </div>
                   <div
                     className={clsx(
-                      "rounded-full flex font-bold  leading-4 items-center justify-center border h-[40px] border-white/20 text-white px-4  cursor-pointer",
+                      "rounded-full flex font-bold uppercase tracking-wider text-sm items-center justify-center border h-[40px] border-white/20 text-white px-6 cursor-pointer transition-all hover:bg-white/10",
                       {
-                        "bg-white text-black!": activeStatus === "unlisted",
+                        "bg-[#2AA2FD] border-[#2AA2FD] text-white": activeStatus === "unlisted",
                       },
                     )}
                     onClick={() => setActiveStatus("unlisted")}
                   >
                     Unlisted
                   </div>
-                  {/* <div
-                    className={clsx(
-                      "rounded-full  flex font-bold leading-4 items-center justify-center border h-[40px] border-white/20 text-white px-4  cursor-pointer",
-                      {
-                        "bg-white text-black!": activeStatus === "All",
-                      },
-                    )}
-                    onClick={() => setActiveStatus("All")}
-                  >
-                    &
-                  </div> */}
                 </div>
               </div>
             </Accordion>
@@ -349,3 +322,4 @@ export const Profile = () => {
     </div>
   );
 };
+
