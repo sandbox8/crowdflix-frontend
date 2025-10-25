@@ -46,14 +46,14 @@ export const EnhancedDetails = () => {
     },
     {
       type: "poster" as const,
-      url: moment.movie.poster_url || moment.poster_url || "",
-      thumbnail: moment.movie.poster_url || moment.poster_url || "",
+      url: moment.movie?.poster_url || moment.poster_url || "",
+      thumbnail: moment.movie?.poster_url || moment.poster_url || "",
       label: "The Movie",
     },
     {
       type: "universe" as const,
-      url: moment.movie.universe?.logo_url || moment.poster_url || "",
-      thumbnail: moment.movie.universe?.logo_url || moment.poster_url || "",
+      url: moment.movie?.universe?.logo_url || moment.poster_url || "",
+      thumbnail: moment.movie?.universe?.logo_url || moment.poster_url || "",
       label: "The Universe",
     },
   ];
@@ -175,12 +175,12 @@ export const EnhancedDetails = () => {
               </div>
 
               {/* Universe Tag */}
-              {moment.movie.universe && (
+              {moment.movie?.universe && (
                 <div className="absolute bottom-4 right-4 z-30">
                   <div className="bg-black/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2">
                     <Tag className="w-3 h-3 text-orange-400" />
                     <span className="text-[10px] uppercase tracking-wider font-bold text-orange-400">
-                      {moment.movie.universe.name}
+                      {moment.movie?.universe.name}
                     </span>
                   </div>
                 </div>
@@ -245,9 +245,9 @@ export const EnhancedDetails = () => {
               </h1>
 
               <div className="flex items-center gap-2 text-white/60 mb-4">
-                <span>{moment.movie.title}</span>
+                <span>{moment.movie?.title || moment.title}</span>
                 <span>•</span>
-                <span>{moment.movie.release_year}</span>
+                <span>{moment.movie?.release_year || moment.date_of_moment}</span>
               </div>
 
               <p className="text-white/80 leading-relaxed mb-6">
@@ -351,11 +351,11 @@ export const EnhancedDetails = () => {
                     </span>
                   </div>
                 )}
-                {moment.movie.universe && (
+                {moment.movie?.universe && (
                   <div className="flex items-center justify-between">
                     <span className="text-white/60">Universe</span>
                     <span className="font-black uppercase text-orange-400">
-                      {moment.movie.universe.name}
+                      {moment.movie?.universe.name}
                     </span>
                   </div>
                 )}
@@ -376,13 +376,13 @@ export const EnhancedDetails = () => {
 
               {/* Crew Information */}
               <div className="space-y-3 mb-6">
-                {moment.movie.directorOrCreator && (
+                {moment.movie?.directorOrCreator && (
                   <div>
                     <span className="text-[10px] uppercase tracking-wider text-white/40">
                       Director
                     </span>
                     <p className="font-medium text-sm text-white mt-1">
-                      {moment.movie.directorOrCreator}
+                      {moment.movie?.directorOrCreator}
                     </p>
                   </div>
                 )}
@@ -411,7 +411,7 @@ export const EnhancedDetails = () => {
                     Release Year
                   </span>
                   <p className="font-medium text-sm text-white mt-1">
-                    {moment.movie.release_year}
+                    {moment.movie?.release_year}
                   </p>
                 </div>
               </div>
@@ -440,7 +440,7 @@ export const EnhancedDetails = () => {
                   <p className="text-white/60">
                     Navigate between the three views: The Moment (video), The
                     Movie (poster), and The Universe (
-                    {moment.movie.universe?.name || "collection"} artwork).
+                    {moment.movie?.universe?.name || "collection"} artwork).
                   </p>
                 </div>
               </div>

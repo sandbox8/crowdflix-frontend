@@ -163,7 +163,7 @@ export function PremiumMomentCard({ moment, onClick }: PremiumMomentCardProps) {
               {moment.title}
             </h3>
             <p className="font-['Outfit',sans-serif] text-white/60 text-xs uppercase tracking-wider mt-1">
-              {moment.movie.title}
+              {moment.movie?.title || moment.title}
             </p>
           </div>
 

@@ -185,7 +185,7 @@ export function PackOpeningModal({
                         {moment.title}
                       </h3>
                       <p className="text-white/60 text-sm mt-1">
-                        {moment.movie.title}
+                        {moment.movie?.title || moment.title}
                       </p>
                     </div>
                   </motion.div>
@@ -238,7 +238,7 @@ export function PackOpeningModal({
                         {moment.title}
                       </h3>
                       <p className="text-white/60 text-sm mt-1">
-                        {moment.movie.title}
+                        {moment.movie?.title || moment.title}
                       </p>
                     </div>
                   </div>

@@ -112,7 +112,7 @@ export function HoverVideoMomentCard({
               {moment.title}
             </h3>
             <p className="text-white/60 text-xs uppercase font-['Outfit',sans-serif]">
-              {moment.movie.title}
+              {moment.movie?.title || moment.title}
             </p>
 
             {lowestAsk && (
