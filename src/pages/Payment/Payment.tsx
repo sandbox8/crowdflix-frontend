@@ -3,7 +3,7 @@ import { useGetMomentById } from "@/shared/hooks/api/moments/useGetMomentById";
 import { useAppSelector } from "@/shared/hooks/useRedux";
 import { Radio, Select } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams } from "react-router";
 import type { Listing } from "@/api/moments/getMoments";
 import clsx from "clsx";
 import { useGetPrice } from "@/shared/hooks/api/price/getPrice";
@@ -11,7 +11,6 @@ import { enqueueSnackbar } from "notistack";
 import { createCheckoutSession } from "@/api/payments/createCheckout";
 
 const Payment = () => {
-  const navigate = useNavigate();
   const { id } = useParams();
   const [, setSortBy] = useState<string>("");
   const { data: moment } = useGetMomentById(id || "");
@@ -76,16 +75,40 @@ const Payment = () => {
       }
     } catch (error) {
       console.error("Error creating checkout session:", error);
-      enqueueSnackbar(
-        error instanceof Error ? error.message : "Failed to process payment",
-        {
-          variant: "error",
-          anchorOrigin: {
-            vertical: "top",
-            horizontal: "right",
-          },
+      
+      // Enhanced error handling with specific messages
+      let errorMessage = "Failed to process payment";
+      
+      if (error instanceof Error) {
+        // Check for specific error types
+        if (error.message.includes("No edition found")) {
+          errorMessage = "This listing is no longer available. Please try another moment.";
+        } else if (error.message.includes("insufficient")) {
+          errorMessage = "Insufficient funds. Please check your payment method.";
+        } else if (error.message.includes("network") || error.message.includes("timeout")) {
+          errorMessage = "Network error. Please check your connection and try again.";
+        } else if (error.message.includes("unauthorized") || error.message.includes("401")) {
+          errorMessage = "Session expired. Please sign in again.";
+        } else if (error.message.includes("forbidden") || error.message.includes("403")) {
+          errorMessage = "You don't have permission to purchase this item.";
+        } else if (error.message.includes("not found") || error.message.includes("404")) {
+          errorMessage = "This moment is no longer available.";
+        } else if (error.message.includes("server") || error.message.includes("500")) {
+          errorMessage = "Server error. Please try again in a few moments.";
+        } else {
+          errorMessage = error.message;
         }
-      );
+      }
+      
+      enqueueSnackbar(errorMessage, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "right",
+        },
+        autoHideDuration: 6000, // Show longer for error messages
+      });
+      
       setIsProcessing(false);
     }
   };

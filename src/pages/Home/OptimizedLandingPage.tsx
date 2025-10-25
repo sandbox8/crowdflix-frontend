@@ -1,38 +1,16 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, Zap, Play, Flame, Clock } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { FloatingMomentCard } from "./FloatingMomentCard";
-import { ModernPackCard } from "./ModernPackCard";
-import { useGetMoments } from "@/shared/hooks/api/moments/useGetMoments";
 import { useNavigate } from "react-router";
 
 interface OptimizedLandingPageProps {
   onBetaSignup?: (source?: string) => void;
-  onPackClick?: (packId: string) => void;
-  onExplainerClick?: () => void;
-  onMomentClick?: () => void;
-  onNavigateToShop?: () => void;
-  onNavigateToUniverse?: (universeSlug: string) => void;
-  onMomentCardClick?: (moment: unknown) => void;
 }
 
 export function OptimizedLandingPage({
   onBetaSignup,
-  onPackClick,
-  onExplainerClick,
-  onMomentClick,
-  onNavigateToShop,
-  onNavigateToUniverse,
 }: OptimizedLandingPageProps) {
   const navigate = useNavigate();
-
-  // Use real API data instead of mock data
-  const { data: moments } = useGetMoments({
-    page: 1,
-    limit: 8,
-    sortBy: "most_sold",
-    sortOrder: "DESC",
-  });
 
   const handleBetaClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -46,51 +24,8 @@ export function OptimizedLandingPage({
   };
 
   const handleShopClick = () => {
-    if (onNavigateToShop) {
-      onNavigateToShop();
-    } else {
-      navigate("/marketplace");
-    }
+    navigate("/marketplace");
   };
-
-  const handleExploreClick = () => {
-    if (onMomentClick) {
-      onMomentClick();
-    } else {
-      navigate("/marketplace");
-    }
-  };
-
-  const handleWatchClick = () => {
-    if (onExplainerClick) {
-      onExplainerClick();
-    } else {
-      // Default behavior - scroll to packs section
-      document
-        .getElementById("packs-section")
-        ?.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  // Create mock packs from moments data for the packs section
-  const mockPacks =
-    moments?.slice(0, 8).map((moment) => ({
-      id: `pack-${moment.moment_id}`,
-      tier: moment.tier as "founders" | "legendary" | "rare" | "common",
-      title: `${moment.movie?.title || moment.title || 'Movie'} Collection`,
-      tierLabel: moment.tier?.toUpperCase() || 'COMMON',
-      tagline: `Collect moments from ${moment.movie?.title || moment.title || 'this movie'}`,
-      currentBid: "Starting at $9.99",
-      description: `Iconic moments from ${moment.movie?.title || moment.title || 'cinema'}`,
-      characterName: moment.characters?.[0]?.name || "Featured Character",
-      subtitle: `${moment.movie?.release_year || moment.date_of_moment || '2024'}`,
-      image: moment.poster_url || moment.movie?.poster_url || "",
-      momentCount: 5,
-      guaranteedLegendary: moment.tier === "legendary",
-      founderBadge: moment.tier === "founders",
-      limitedSupply: 1000,
-      soldCount: Math.floor(Math.random() * 500) + 100,
-    })) || [];
 
   return (
     <div className="min-h-screen">
@@ -193,7 +128,6 @@ export function OptimizedLandingPage({
             transition={{ delay: 0.6 }}
             className="text-center mb-5 sm:mb-10 max-w-xl mx-auto px-4"
           >
-            {/* Dynamic Hook based on real moments */}
             <p
               className="font-['Sofia_Sans',sans-serif] font-black uppercase tracking-wide mb-2 sm:mb-3"
               style={{
@@ -205,7 +139,7 @@ export function OptimizedLandingPage({
                 backgroundClip: "text",
               }}
             >
-              {moments?.[0]?.movie?.title || moments?.[0]?.title || "Horror Classics"} Collection
+              Horror Classics Collection
             </p>
 
             {/* Call to Action */}
@@ -233,7 +167,7 @@ export function OptimizedLandingPage({
             onClick={(e) => {
               // Fallback click handler if button doesn't work
               if (e.target === e.currentTarget) {
-                handleBetaClick(e as React.MouseEvent<HTMLButtonElement>);
+                handleBetaClick(e as unknown as React.MouseEvent<HTMLButtonElement>);
               }
             }}
           >
@@ -315,243 +249,6 @@ export function OptimizedLandingPage({
               </span>
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-          </motion.div>
-
-          {/* 5. VISUAL PROOF - 3D Demo Card (Hero Product Shot) */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{
-              duration: 0.9,
-              delay: 1.0,
-              type: "spring",
-              stiffness: 80,
-            }}
-            className="mb-6 sm:mb-10 px-4 flex justify-center relative z-10"
-          >
-            <div className="w-full max-w-[340px] sm:max-w-md">
-              <FloatingMomentCard />
-            </div>
-          </motion.div>
-
-          {/* 6. SECONDARY CTAs - Subtle, Non-Intrusive */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.4 }}
-            className="flex items-center justify-center gap-4 sm:gap-6 px-4 relative z-10"
-          >
-            <button
-              onClick={handleExploreClick}
-              type="button"
-              className="group flex items-center gap-2 text-white/70 hover:text-white transition-all duration-300 active:scale-95 cursor-pointer min-h-[44px] px-3 py-2 touch-manipulation"
-            >
-              <Zap
-                className="w-4 h-4 group-hover:scale-110 transition-transform pointer-events-none"
-                fill="currentColor"
-              />
-              <span
-                className="font-['Sofia_Sans',sans-serif] font-black uppercase tracking-wider pointer-events-none"
-                style={{ fontSize: "clamp(11px, 3vw, 14px)" }}
-              >
-                Explore
-              </span>
-            </button>
-
-            <div className="w-px h-4 bg-white/20 pointer-events-none" />
-
-            <button
-              onClick={handleWatchClick}
-              type="button"
-              className="group flex items-center gap-2 text-white/70 hover:text-white transition-all duration-300 active:scale-95 cursor-pointer min-h-[44px] px-3 py-2 touch-manipulation"
-            >
-              <Play
-                className="w-4 h-4 group-hover:scale-110 transition-transform pointer-events-none"
-                fill="currentColor"
-              />
-              <span
-                className="font-['Sofia_Sans',sans-serif] font-black uppercase tracking-wider pointer-events-none"
-                style={{ fontSize: "clamp(11px, 3vw, 14px)" }}
-              >
-                Watch
-              </span>
-            </button>
-
-            <div className="w-px h-4 bg-white/20 pointer-events-none" />
-
-            <button
-              onClick={handleShopClick}
-              type="button"
-              className="group flex items-center gap-2 text-white/70 hover:text-white transition-all duration-300 active:scale-95 cursor-pointer min-h-[44px] px-3 py-2 touch-manipulation"
-            >
-              <Zap
-                className="w-4 h-4 group-hover:scale-110 transition-transform pointer-events-none"
-                fill="currentColor"
-              />
-              <span
-                className="font-['Sofia_Sans',sans-serif] font-black uppercase tracking-wider pointer-events-none"
-                style={{ fontSize: "clamp(11px, 3vw, 14px)" }}
-              >
-                Shop Packs
-              </span>
-            </button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* HORROR CLASSICS COMMUNITY SECTION */}
-      <section className="relative py-20 overflow-hidden bg-black">
-        {/* Background gradient glow */}
-        <div className="absolute inset-0 bg-gradient-radial from-[#ff4a3c]/10 via-transparent to-transparent opacity-60 pointer-events-none" />
-
-        <div className="container mx-auto px-4 max-w-7xl relative z-10">
-          {/* Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <div className="inline-flex items-center gap-2 bg-[rgba(255,74,60,0.15)] border border-[rgba(255,74,60,0.4)] rounded-full px-5 py-2 mb-6">
-              <Flame className="w-4 h-4 text-[#ff4a3c] animate-pulse" />
-              <span className="font-['Outfit',sans-serif] text-xs text-[#ffcbcd] uppercase tracking-wider">
-                Season 1 Featured
-              </span>
-              <Flame className="w-4 h-4 text-[#ff4a3c] animate-pulse" />
-            </div>
-
-            <h2 className="font-['Sofia_Sans',sans-serif] font-black text-5xl lg:text-7xl uppercase mb-4 text-white tracking-tight">
-              Horror Classics
-            </h2>
-            <p className="text-white/70 max-w-2xl mx-auto font-['Outfit',sans-serif] text-lg mb-8">
-              The most iconic moments from horror cinema history. From Nosferatu
-              to The Exorcist, collect the scenes that defined fear itself.
-            </p>
-
-            {/* Sign Up Button */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <Button
-                onClick={() =>
-                  onBetaSignup?.("horror_classics_section") ||
-                  navigate("/signup")
-                }
-                className="bg-gradient-to-r from-[#ff4a3c] to-[#EF870A] text-white font-['Sofia_Sans',sans-serif] font-black text-lg uppercase tracking-wider h-16 px-10 rounded-full shadow-[0_8px_32px_rgba(255,74,60,0.4)] hover:shadow-[0_12px_48px_rgba(255,74,60,0.6)] hover:scale-105 transition-all group"
-              >
-                <Sparkles className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                <span>Sign Up & Get 3 Free Moments</span>
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* PACKS SECTION */}
-      <section
-        id="packs-section"
-        className="relative py-20 overflow-hidden bg-black"
-      >
-        {/* Background gradient glow */}
-        <div className="absolute inset-0 bg-gradient-radial from-[#ff4a3c]/10 via-transparent to-transparent opacity-60 pointer-events-none" />
-
-        <div className="container mx-auto px-4 max-w-7xl relative z-10">
-          {/* Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <div className="inline-flex items-center gap-2 bg-[rgba(255,74,60,0.15)] border border-[rgba(255,74,60,0.4)] rounded-full px-5 py-2 mb-6">
-              <Flame className="w-4 h-4 text-[#ff4a3c] animate-pulse" />
-              <span className="font-['Outfit',sans-serif] text-xs text-[#ffcbcd] uppercase tracking-wider">
-                Season 1 Packs
-              </span>
-              <Flame className="w-4 h-4 text-[#ff4a3c] animate-pulse" />
-            </div>
-
-            <h2 className="font-['Sofia_Sans',sans-serif] font-black text-5xl lg:text-7xl uppercase mb-4 text-white tracking-tight">
-              Collectible Packs
-            </h2>
-            <p className="text-white/70 max-w-2xl mx-auto font-['Outfit',sans-serif] text-lg">
-              Discover curated packs of your favorite horror moments. Each pack
-              is a collection of iconic scenes, perfect for any horror fan.
-            </p>
-          </motion.div>
-
-          {/* Featured Packs Grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6 mb-12"
-          >
-            {mockPacks.map((pack, idx) => (
-              <motion.div
-                key={pack.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-              >
-                <ModernPackCard
-                  pack={pack}
-                  onClick={() =>
-                    onPackClick?.(pack.id) || navigate("/marketplace")
-                  }
-                />
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* CTA to Explore Full Collection */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-center"
-          >
-            <Button
-              onClick={() =>
-                onNavigateToUniverse?.("horror-classics") ||
-                navigate("/marketplace")
-              }
-              className="bg-gradient-to-r from-[#ff4a3c] to-[#EF870A] text-white font-['Sofia_Sans',sans-serif] font-black text-lg uppercase tracking-wider h-16 px-10 rounded-full shadow-[0_8px_32px_rgba(255,74,60,0.4)] hover:shadow-[0_12px_48px_rgba(255,74,60,0.6)] hover:scale-105 transition-all group"
-            >
-              <span>Explore Full Collection</span>
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
-
-            {/* Stats below button */}
-            <div className="flex items-center justify-center gap-8 mt-8 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#ff4a3c]/20 flex items-center justify-center border border-[#ff4a3c]/40">
-                  <span className="font-['Sofia_Sans',sans-serif] font-black text-[#ff4a3c]">
-                    {mockPacks.length}
-                  </span>
-                </div>
-                <span className="text-white/60 font-['Outfit',sans-serif]">
-                  Packs
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#2aa2fd]/20 flex items-center justify-center border border-[#2aa2fd]/40">
-                  <Clock className="w-5 h-5 text-[#2aa2fd]" />
-                </div>
-                <span className="text-white/60 font-['Outfit',sans-serif]">
-                  New Packs Every Week
-                </span>
-              </div>
-            </div>
           </motion.div>
         </div>
       </section>

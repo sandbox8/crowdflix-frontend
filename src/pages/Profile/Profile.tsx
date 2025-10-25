@@ -5,7 +5,7 @@ import { Checkbox } from "@/shared/components/common/Checkbox/Checkbox";
 import { Drawer, Input, Loader } from "@mantine/core";
 import clsx from "clsx";
 import { ArrowRight, Edit, Filter, SearchNormal1 } from "iconsax-reactjs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HoverVideoMomentCard } from "@/shared/components/common/HoverVideoMomentCard";
 
 import { useAppSelector } from "@/shared/hooks/useRedux";
@@ -14,6 +14,7 @@ import { EditProfileModal } from "./components/EditProfileModal/EditProfileModal
 import { useNavigate } from "react-router";
 import { useGetMyEditions } from "@/shared/hooks/api/editions/getMyEditions";
 import { useDebouncedCallback } from "@mantine/hooks";
+import { enqueueSnackbar } from "notistack";
 
 export const Profile = () => {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ export const Profile = () => {
     data: editions,
     isLoading,
     isRefetching,
+    refetch,
   } = useGetMyEditions(activeStatus, activeTier, search);
 
   const handleSearch = (value: string) => {
@@ -47,6 +49,38 @@ export const Profile = () => {
     setActiveTier(undefined);
     setSearch("");
   };
+
+  // Auto-refresh logic for successful payments
+  useEffect(() => {
+    const fromPayment = sessionStorage.getItem('payment_success');
+    if (fromPayment) {
+      // Show toast notification
+      enqueueSnackbar("Checking for new moments...", {
+        variant: "info",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "right",
+        },
+      });
+      
+      // Refetch editions to get latest data
+      refetch();
+      
+      // Clear the session flag
+      sessionStorage.removeItem('payment_success');
+      
+      // Show success toast after a short delay (to allow refetch to complete)
+      setTimeout(() => {
+        enqueueSnackbar("New moment added to your collection!", {
+          variant: "success",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "right",
+          },
+        });
+      }, 1000);
+    }
+  }, [refetch]);
   return (
     <div className="flex w-full flex-col gap-4 relative ">
       <div className="absolute top-15 flex justify-between w-full ">

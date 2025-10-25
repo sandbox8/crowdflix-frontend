@@ -1,36 +1,42 @@
-import { Button } from "@/shared/components/common/Button/Button";
-import InfoRow from "@/shared/components/common/InfoRow/InfoRow";
-import Tag from "@/shared/components/common/Tag/Tag";
-import { Carousel } from "@mantine/carousel";
-import { useParams, useSearchParams } from "react-router";
+import { Button } from "@/shared/components/ui/button";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useGetMomentById } from "@/shared/hooks/api/moments/useGetMomentById";
-import { Loader } from "@mantine/core";
-import Rank from "@/shared/assets/rank-1.svg?react";
-import Rank2 from "@/shared/assets/rank-2.svg?react";
-import Rank3 from "@/shared/assets/rank-3.svg?react";
-import Rank4 from "@/shared/assets/rank-4.svg?react";
-import Rank5 from "@/shared/assets/rank-5.svg?react";
-import dayjs from "dayjs";
-import { Input } from "@/shared/components/form/Input";
+import { Loader, Input } from "@mantine/core";
+import { useAppSelector } from "@/shared/hooks/useRedux";
+import { useEffect, useMemo, useState } from "react";
+import { useGetPrice } from "@/shared/hooks/api/price/getPrice";
 import {
   sendPrepareUserTransactionForSell,
   sendTransactionForCancelListing,
   sendTransactionForEditListingPrice,
   sendTransactionForSellNFT,
 } from "../Payment/transactions";
-import { useAppSelector } from "@/shared/hooks/useRedux";
-import { useEffect, useMemo, useState } from "react";
-import { useGetPrice } from "@/shared/hooks/api/price/getPrice";
+import {
+  ArrowLeft,
+  Bookmark,
+  Share2,
+  Wallet,
+  Info,
+  ChevronLeft,
+  ChevronRight,
+  Tag as TagIcon,
+} from "lucide-react";
+import { MomentVideoPlayer } from "@/shared/components/common/MomentVideoPlayer";
+import { ImageWithFallback } from "@/shared/components/common/ImageWithFallback";
 
 export const SpecificMoment = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const flow_token_id = searchParams.get("flow_token_id");
   const edition_id = searchParams.get("edition_id");
   const { data: moment, isLoading } = useGetMomentById(id || "");
   const [price, setPrice] = useState<string>("");
   const { user } = useAppSelector((state) => state.user);
   const { data: oneFlowPrice } = useGetPrice();
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  
   const isListed = useMemo(() => {
     return moment?.activeListings?.some(
       (listing) => listing.edition.edition_id === edition_id,
@@ -46,13 +52,53 @@ export const SpecificMoment = () => {
     }
   }, [isListed, moment, edition_id]);
 
-  if (isLoading) {
+  if (isLoading || !moment) {
     return (
-      <div className="flex w-full justify-center h-screen items-center">
+      <div className="min-h-screen bg-black flex w-full justify-center items-center">
         <Loader size="xl" color="#2AA2FD" />
       </div>
     );
   }
+
+  // Three-sided collectible: The Moment, The Movie, The Universe
+  const mediaItems = [
+    {
+      type: "moment" as const,
+      url: moment.video_url || moment.poster_url || "",
+      thumbnail: moment.poster_url || "",
+      label: "The Moment",
+    },
+    {
+      type: "poster" as const,
+      url: moment.movie?.poster_url || moment.poster_url || "",
+      thumbnail: moment.movie?.poster_url || moment.poster_url || "",
+      label: "The Movie",
+    },
+    {
+      type: "universe" as const,
+      url: moment.movie?.universe?.logo_url || moment.poster_url || "",
+      thumbnail: moment.movie?.universe?.logo_url || moment.poster_url || "",
+      label: "The Universe",
+    },
+  ];
+
+  const nextMedia = () => {
+    setActiveMediaIndex((prev) => (prev + 1) % mediaItems.length);
+  };
+
+  const prevMedia = () => {
+    setActiveMediaIndex(
+      (prev) => (prev - 1 + mediaItems.length) % mediaItems.length,
+    );
+  };
+
+  const handleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+  };
+
+  const handleShare = () => {
+    navigator.clipboard?.writeText(window.location.href);
+  };
 
   const handleSellMoment = async () => {
     if (user?.is_ready_to_sell) {
@@ -87,102 +133,215 @@ export const SpecificMoment = () => {
     );
   };
 
+  const getRarityColor = (rarity: string) => {
+    const colors = {
+      legendary: {
+        bg: "from-purple-600 to-pink-600",
+        text: "text-purple-400",
+      },
+      rare: { bg: "from-orange-600 to-red-600", text: "text-orange-400" },
+      epic: { bg: "from-blue-600 to-cyan-600", text: "text-cyan-400" },
+      common: { bg: "from-gray-600 to-gray-700", text: "text-gray-400" },
+    };
+    return colors[rarity as keyof typeof colors] || colors.rare;
+  };
+
+  const rarityColors = getRarityColor(moment.tier);
+
+  const avgSale = moment.activeListings?.length
+    ? moment.activeListings.reduce(
+        (sum, current) => Number(sum) + Number(current.price),
+        0,
+      ) / moment.activeListings.length
+    : undefined;
+
   return (
-    <div className="flex flex-col lg:flex-row relative w-full  min-h-screen mt-[60px]">
-      <section className="lg:w-1/2 w-full    lg:ml-[80px] lg:mr-[40px] mb-[20px] lg:mb-0">
-        <div className="flex">
-          <ul className="flex justify-between flex-col gap-4 mr-[40px]">
-            <li className="max-w-[140px]">
-              <img src={moment?.poster_url || ""} alt="detailMoment" />
-            </li>
-            <li className="max-w-[140px]">
-              <img src={moment?.poster_url || ""} alt="detailMoment" />
-            </li>
-            <li className="max-w-[140px]">
-              <img src={moment?.poster_url || ""} alt="detailMoment" />
-            </li>
-          </ul>
-          <div className=" w-full max-w-[460px]">
-            <img
-              className="w-full"
-              src={moment?.poster_url || ""}
-              alt="detailMoment"
-            />
+    <div className="min-h-screen bg-black text-white pt-20 pb-12">
+      <div className="container mx-auto px-4 max-w-6xl">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-white/80 hover:text-white mb-6 transition-colors group"
+        >
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <span className="font-bold uppercase tracking-wide">Back</span>
+        </button>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          {/* LEFT: Three-Sided Collectible Viewer */}
+          <div className="space-y-4 max-w-xl mx-auto lg:mx-0 w-full">
+            {/* Main Viewer */}
+            <div className="relative aspect-square bg-black rounded-2xl overflow-hidden border border-white/10">
+              {mediaItems[activeMediaIndex].type === "moment" &&
+              moment.video_url ? (
+                <MomentVideoPlayer
+                  videoUrl={mediaItems[activeMediaIndex].url}
+                  posterUrl={moment.poster_url || ""}
+                  title={moment.characters?.[0]?.name || moment.title}
+                  autoPlay
+                  loop
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center p-4">
+                  <ImageWithFallback
+                    src={mediaItems[activeMediaIndex].url}
+                    alt={mediaItems[activeMediaIndex].label}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+              )}
+
+              {/* Navigation Arrows */}
+              <button
+                onClick={prevMedia}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/80 backdrop-blur-sm rounded-full border border-white/20 hover:bg-white/10 transition-all flex items-center justify-center z-20"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={nextMedia}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/80 backdrop-blur-sm rounded-full border border-white/20 hover:bg-white/10 transition-all flex items-center justify-center z-20"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+
+              {/* Current View Label */}
+              <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20 z-30">
+                <span className="text-xs uppercase tracking-wider font-bold">
+                  {mediaItems[activeMediaIndex].label}
+                </span>
+              </div>
+
+              {/* Universe Tag */}
+              {moment.movie?.universe && (
+                <div className="absolute bottom-4 right-4 z-30">
+                  <div className="bg-black/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2">
+                    <TagIcon className="w-3 h-3 text-orange-400" />
+                    <span className="text-[10px] uppercase tracking-wider font-bold text-orange-400">
+                      {moment.movie?.universe.name}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Thumbnails */}
+            <div className="grid grid-cols-3 gap-3">
+              {mediaItems.map((item, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveMediaIndex(idx)}
+                  className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                    activeMediaIndex === idx
+                      ? "border-white scale-105 shadow-lg shadow-[#2aa2fd]/50"
+                      : "border-white/20 hover:border-white/40 opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <ImageWithFallback
+                    src={item.thumbnail}
+                    alt={item.label}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-2">
+                    <span className="text-[10px] uppercase tracking-wider font-bold">
+                      {item.label}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-      <section className=" flex flex-col lg:w-1/2 w-full">
-        <div className="flex justify-between gap-2  flex-wrap mb-[25px]">
-          <div className="flex">
-            <Tag
-              className="flex items-center justify-center mr-[2px] py-[5px] px-[14px]  text-white text-xs rounded-full bg-gradient-to-r from-[#9C0322] to-[#6B183A]"
-              title={moment?.tier.toUpperCase()}
-              titleColor="#fff"
-            />
-            <Tag
-              className="bg-white inline-flex py-[5px] px-[10px] rounded-full text-sm font-medium "
-              titleColor="#000"
-              title="#3,498"
-            />
-          </div>
-          <div className="flex gap-2">
-            <Tag title="Status" value={moment?.status} />
-            <Tag title="Scene Type" value={moment?.scene_type} />
-          </div>
-        </div>
-        <div className="flex flex-row lg:mb-[15px] mb-[10px]">
-          <h1 className="text-white font-outfit font-semibold text-[52px] leading-[54px] mr-[10px]">
-            {moment?.title}
-          </h1>
-        </div>
-        <div className="mb-[40px]">
-          <h2 className="text-[#FFDEB3] text-[10px] leading-[14px] uppercase">
-            {moment?.movie.title} {moment?.movie.release_year} -{" "}
-            {moment?.scene_type}
-          </h2>
-        </div>
-        <div className="bg-[#1A1A1A]/70 backdrop-blur-[35px]  pt-[40px] pb-[45px] px-[40px] rounded-[30px] mb-[40px]">
-          <div className="flex justify-between  text-white  ">
-            <div className="flex flex-col w-1/2">
-              <p className="font-outfit font-normal text-[12px] leading-[14px] tracking-[-0.01em]  mb-[10px]">
-                Set Price
+
+          {/* RIGHT: Info & Sell Actions */}
+          <div className="space-y-6">
+            {/* Header */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <span
+                  className={`inline-flex items-center justify-center rounded-md px-4 py-1.5 text-xs font-bold uppercase tracking-wider bg-gradient-to-r ${rarityColors.bg} text-white shadow-lg`}
+                >
+                  {moment.tier} Moment
+                </span>
+                <button
+                  onClick={handleBookmark}
+                  className="w-10 h-10 rounded-lg border border-white/20 hover:bg-white/10 flex items-center justify-center transition-all"
+                >
+                  <Bookmark
+                    className={`w-5 h-5 ${isBookmarked ? "fill-white" : ""}`}
+                  />
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="w-10 h-10 rounded-lg border border-white/20 hover:bg-white/10 flex items-center justify-center transition-all"
+                >
+                  <Share2 className="w-5 h-5" />
+                </button>
+              </div>
+
+              <h1 className="font-black text-5xl lg:text-6xl uppercase leading-none mb-3 bg-gradient-to-r from-white via-white to-gray-300 bg-clip-text text-transparent">
+                {moment.title}
+              </h1>
+
+              <div className="flex items-center gap-2 text-white/60 mb-4">
+                <span>{moment.movie?.title || moment.title}</span>
+                <span>•</span>
+                <span>{moment.movie?.release_year || moment.date_of_moment}</span>
+              </div>
+
+              <p className="text-white/80 leading-relaxed mb-6">
+                {moment.summary || `${moment.title} - ${moment.scene_category}`}
               </p>
-              <div className="flex items-baseline space-x-1 font-outfit uppercase mb-[32px]">
+            </div>
+
+            {/* Sell Moment Section */}
+            <div className="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-6">
+              <h3 className="text-sm uppercase tracking-wider text-white/60 font-bold mb-4 flex items-center gap-2">
+                <Wallet className="w-4 h-4" />
+                Sell Your Moment
+              </h3>
+
+              {/* Price Input */}
+              <div className="mb-6">
+                <div className="text-sm text-white/60 mb-2">Set Price (FLOW)</div>
                 <Input
-                  className="w-full"
+                  size="lg"
                   value={price || ""}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="0.00"
+                  classNames={{
+                    input: "bg-white/5 border-white/20 text-white placeholder:text-white/40 text-2xl font-bold",
+                  }}
                   leftSection={
-                    <span className="text-[14px] leading-[34px] tracking-[-0.03em] font-normal text-gray-400 uppercase mr-[5px]">
-                      F
-                    </span>
+                    <span className="text-white/40 uppercase text-sm font-bold">F</span>
                   }
                 />
-                {oneFlowPrice && (
-                  <span className="text-gray-400 uppercase text-xs ml-[5px]">
-                    {" "}
-                    ({(Number(price) * oneFlowPrice).toFixed(2)} USD)
-                  </span>
+                {oneFlowPrice && price && (
+                  <div className="text-white/40 text-sm mt-2">
+                    ≈ ${(Number(price) * oneFlowPrice).toFixed(2)} USD
+                  </div>
                 )}
               </div>
-              <p>
-                <span className="text-[14px] leading-[34px] tracking-[-0.03em] font-normal text-gray-400 uppercase mr-[5px]">
-                  Avg Sale
-                </span>
-                <span className="text-[14px] leading-[34px] tracking-[-0.03em] font-normal text-white uppercase mr-[15px]">
-                  {Number(moment?.avgSale).toFixed(2)} FLOW
-                </span>
-                <span className="text-[14px] leading-[34px] tracking-[-0.03em] font-normal text-gray-400 uppercase mr-[5px]">
-                  for sale
-                </span>
-                <span className="text-[14px] leading-[34px] tracking-[-0.03em] font-normal text-white uppercase">
-                  {moment?.activeListings?.length}
-                </span>
-              </p>
-            </div>
-            <div className="w-1/2 flex flex-col items-end">
-              <div className="flex flex-col  gap-2">
+
+              {/* Stats */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-white/5 rounded-xl p-3">
+                  <div className="text-xs text-white/60 mb-1">For Sale</div>
+                  <div className="font-black text-xl">
+                    {moment.activeListings?.length || 0}
+                  </div>
+                </div>
+                {avgSale && (
+                  <div className="bg-white/5 rounded-xl p-3">
+                    <div className="text-xs text-white/60 mb-1">Avg Sale</div>
+                    <div className="font-black text-xl">
+                      {avgSale.toFixed(2)} F
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
                 <Button
                   onClick={() => {
                     if (isListed) {
@@ -191,452 +350,153 @@ export const SpecificMoment = () => {
                       handleSellMoment();
                     }
                   }}
-                  className="max-w-[191px] md:block hidden min-h-[60px] py-[14px] px-[30px]"
+                  className="w-full h-14 bg-gradient-to-r from-[#2aa2fd] to-[#1e90ff] hover:from-[#1e90ff] hover:to-[#2aa2fd] text-white font-black text-lg uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02]"
                 >
-                  {isListed ? "Change price" : "Sell Moment"}
+                  <Wallet className="w-5 h-5 mr-2" />
+                  {isListed ? "Update Price" : "List for Sale"}
                 </Button>
+
                 {isListed && (
                   <Button
-                    onClick={() => {
-                      handleCancelListing();
-                    }}
-                    className="max-w-[191px] md:block hidden min-h-[60px] py-[14px] px-[30px] bg-red-500"
+                    onClick={handleCancelListing}
+                    variant="outline"
+                    className="w-full h-12 border-2 border-red-500/50 hover:bg-red-500/20 text-red-400 font-black uppercase tracking-wider transition-all"
                   >
                     Cancel Listing
                   </Button>
                 )}
               </div>
             </div>
-          </div>
-          <div className="w-full flex justify-center ">
-            <div className="flex flex-col w-full gap-2">
-              <Button
-                onClick={() => {
-                  if (isListed) {
-                    handleEditListingPrice();
-                  } else {
-                    handleSellMoment();
-                  }
-                }}
-                className="w-full md:hidden block min-h-[60px] py-[14px] px-[30px]"
-              >
-                {isListed ? "Change price" : "Sell Moment"}
-              </Button>
-              {isListed && (
-                <Button
-                  onClick={() => {
-                    handleCancelListing();
-                  }}
-                  className="w-full md:hidden block min-h-[60px] py-[14px] px-[30px] bg-red-500"
-                >
-                  Cancel Listing
-                </Button>
+
+            {/* Collection Info */}
+            <div className="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-6">
+              <h3 className="text-sm uppercase tracking-wider text-white/60 font-black mb-4">
+                Collection Details
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-white/60">Edition</span>
+                  <span className="font-black text-xl">
+                    #{edition_id?.slice(0, 8) || "N/A"}
+                  </span>
+                </div>
+                {moment.max_supply && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60">Total Minted</span>
+                    <span className="font-black">{moment.max_supply}</span>
+                  </div>
+                )}
+                {moment.soldCount !== undefined && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60">Sold</span>
+                    <span className="font-black">{moment.soldCount}</span>
+                  </div>
+                )}
+                {moment.set && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60">Set</span>
+                    <span className="font-black uppercase">
+                      {moment.set.title}
+                    </span>
+                  </div>
+                )}
+                {moment.movie?.universe && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60">Universe</span>
+                    <span className="font-black uppercase text-orange-400">
+                      {moment.movie?.universe.name}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-white/60">Tier</span>
+                  <span className={`font-black uppercase ${rarityColors.text}`}>
+                    {moment.tier}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Movie Details Card */}
+            <div className="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-6">
+              <h3 className="text-sm uppercase tracking-wider text-white/60 font-black mb-4">
+                Movie Details
+              </h3>
+
+              {/* Crew Information */}
+              <div className="space-y-3 mb-6">
+                {moment.movie?.directorOrCreator && (
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-white/40">
+                      Director
+                    </span>
+                    <p className="font-medium text-sm text-white mt-1">
+                      {moment.movie?.directorOrCreator}
+                    </p>
+                  </div>
+                )}
+                {moment.characters?.[0] && (
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-white/40">
+                      Character
+                    </span>
+                    <p className="font-medium text-sm text-white mt-1">
+                      {moment.characters[0].name}
+                      {moment.characters[0].actor &&
+                        ` (${moment.characters[0].actor.name})`}
+                    </p>
+                  </div>
+                )}
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider text-white/40">
+                    Scene Category
+                  </span>
+                  <p className="font-medium text-sm text-white mt-1">
+                    {moment.scene_category}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider text-white/40">
+                    Release Year
+                  </span>
+                  <p className="font-medium text-sm text-white mt-1">
+                    {moment.movie?.release_year || moment.date_of_moment}
+                  </p>
+                </div>
+              </div>
+
+              {/* Moment Description */}
+              {moment.summary && (
+                <div className="border-t border-white/10 pt-4">
+                  <span className="text-[10px] uppercase tracking-wider text-white/40 block mb-2">
+                    About This Moment
+                  </span>
+                  <p className="font-normal text-[12px] leading-[18px] text-white/80">
+                    {moment.summary}
+                  </p>
+                </div>
               )}
             </div>
-          </div>
-        </div>
-        {moment?.characters && moment?.characters.length > 0 && (
-          <div className="flex p-[40px] bg-[#BD432E]/20 backdrop-blur-[35px] md:flex-row flex-col rounded-[30px] mb-[40px] justify-between">
-            <div className="md:max-w-[60%] w-full">
-              <h3 className="font-outfit font-normal text-[34px] leading-[34px] tracking-[-0.03em] uppercase text-white mb-[25px]">
-                {moment.characters[0].name}
-              </h3>
-              <img
-                className="w-full mb-[25px] md:hidden object-cover "
-                src={
-                  moment?.characters[0]?.portrait_url ||
-                  "/images/IronManDetails.png"
-                }
-                alt="Character"
-              />
-              <p className="font-outfit font-normal text-[12px] leading-[18px] text-white max-w-[300px] mb-[25px]">
-                {moment.summary}
-              </p>
-              <div className="flex flex-wrap">
-                {moment.characters.map((character, index) => (
-                  <InfoRow
-                    key={character.character_id}
-                    title={`Character ${index + 1}`}
-                    value={character.name}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="max-w-[23%] hidden md:block">
-              <img
-                className="w-full "
-                src={
-                  moment?.characters[0]?.portrait_url ||
-                  "/images/IronManDetails.png"
-                }
-                alt="Character"
-              />
-            </div>
-          </div>
-        )}
-        <div className="flex flex-col pt-[40px] pr-0 pb-[40px] pl-[40px] bg-[#3941D3]/20 backdrop-blur-[35px] rounded-[30px] mb-[40px] justify-between">
-          <div>
-            <h3 className="font-outfit font-normal text-[34px] leading-[34px] tracking-[-0.03em] uppercase text-white mb-[10px]">
-              {moment?.movie.title}:{" "}
-              <span className="text-gray-400">{moment?.scene_type}</span>{" "}
-              <span className="font-outfit font-medium text-[12px] leading-[22px] tracking-[-0.01em] uppercase text-gray-400">
-                {moment?.movie.release_year}
-              </span>
-            </h3>
-            <div className="mb-[25px]">
-              {moment?.tags &&
-                moment?.tags.map((tag) => (
-                  <Tag key={tag.tag_id} title={tag.name} titleColor="#FFDEB3" />
-                ))}
-            </div>
-          </div>
-          <div className="mb-[25px]">
-            <Carousel
-              slideGap={10}
-              slideSize="25%"
-              emblaOptions={{
-                loop: true,
-                align: "start",
-                slidesToScroll: 3,
-              }}
-              withControls={false}
-              classNames={{
-                indicator: "bg-white w-[10px] h-[10px] rounded-full",
-              }}
-              className="w-full max-w-[100%]"
-            >
-              {Array.from({ length: 5 }).map((_, index) => (
-                <Carousel.Slide key={index}>
-                  <div className=" flex flex-col mr-[15px] text-center shrink-0 w-[210px]">
-                    <img
-                      className="w-[210px] h-[310px]  mx-auto"
-                      src={moment?.movie.poster_url || ""}
-                      alt={`${moment?.movie.title} poster`}
-                    />
-                  </div>
-                </Carousel.Slide>
-              ))}
-            </Carousel>
-          </div>
-          <div className="flex flex-wrap lg:pr-[40px]">
-            <InfoRow title="Movie Title" value={moment?.movie.title} />
-            <InfoRow
-              title="Release Year"
-              value={moment?.movie.release_year.toString()}
-            />
-            <InfoRow title="Scene Type" value={moment?.scene_type} />
-            <InfoRow title="Status" value={moment?.status} />
-            <InfoRow title="Tier" value={moment?.tier} />
-            <InfoRow
-              title="Created At"
-              value={dayjs(moment?.created_at).format("DD.MM.YYYY")}
-            />
-          </div>
-        </div>
-        <div className="flex flex-col md:p-[40px] p-[20px]  bg-[#1A1A1A]/70 backdrop-blur-[35px] rounded-[30px] mb-[40px]">
-          <div className="flex">
-            <h2 className="font-outfit font-semibold text-[22px] leading-[22px] text-white">
-              WEEKLY LEADERBOARD
-            </h2>
-          </div>
-          <div className="w-full lg:max-w-3xl  mx-auto mt-8 ">
-            <div className="grid grid-cols-5 items-center text-xs text-gray-400 mb-2 px-8">
-              <div className="col-span-1 ">RANK</div>
-              <div className="col-span-1 lg:block hidden">COLLECTIONS</div>
-              <div className="col-span-1">RANK</div>
-              <div className="col-span-2">USERNAME</div>
-            </div>
 
-            <div className="grid md:grid-cols-5 grid-cols-4 items-center bg-[#442326]/70 backdrop-blur-[40px] rounded-[32px] py-4 mb-2 px-8">
-              <Rank className="w-8 h-8" />
-              <div className="font-outfit font-medium text-[14px] lg:block hidden leading-[14px] tracking-[-0.01em] text-white">
-                5
-              </div>
-              <div className="font-outfit font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                #2
-              </div>
-              <div className="col-span-2 flex items-center space-x-2">
-                <img
-                  src="/images/userpick.png"
-                  className="w-8 h-8 rounded-full ring-2 ring-[#FF3636]"
-                  alt="avatar"
-                />
-                <span className="font-outfit text-overflow-ellipsis overflow-hidden text-ellipsis  font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                  @num1SEAfANSD
-                </span>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-5 grid-cols-4 items-center py-3 px-8">
-              <Rank2 className="w-8 h-8" />
-              <div className="font-outfit font-medium text-[14px] lg:block hidden leading-[14px] tracking-[-0.01em] text-white">
-                17
-              </div>
-              <div className="font-outfit font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                #1
-              </div>
-              <div className="col-span-2 flex items-center space-x-2">
-                <img
-                  src="/images/userpick.png"
-                  className="w-8 h-8 rounded-full ring-2 ring-[#C8FE36]"
-                  alt="avatar"
-                />
-                <span className="font-outfit text-overflow-ellipsis overflow-hidden text-ellipsis  font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                  @EWW
-                </span>
-              </div>
-            </div>
-            <div className="grid md:grid-cols-5 grid-cols-4 items-center py-3 px-8">
-              <Rank3 className="w-8 h-8" />
-              <div className="font-outfit font-medium lg:block hidden text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                45
-              </div>
-              <div className="font-outfit font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                #3
-              </div>
-              <div className="col-span-2 flex items-center space-x-2">
-                <img
-                  src="/images/userpick.png"
-                  className="w-8 h-8 rounded-full ring-2 ring-[#FFD800]"
-                  alt="avatar"
-                />
-                <span className="font-outfit text-overflow-ellipsis overflow-hidden text-ellipsis  font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                  @wemby
-                </span>
-              </div>
-            </div>
-            <div className="grid md:grid-cols-5 grid-cols-4 items-center py-3 px-8">
-              <Rank4 className="w-8 h-8" />
-              <div className="font-outfit lg:block hidden font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                17
-              </div>
-              <div className="font-outfit font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                #4
-              </div>
-              <div className="col-span-2 flex items-center space-x-2">
-                <img
-                  src="/images/userpick.png"
-                  className="w-8 h-8 rounded-full ring-2 ring-[#00C9FF]"
-                  alt="avatar"
-                />
-                <span className="font-outfit text-overflow-ellipsis overflow-hidden text-ellipsis  font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                  @MaktW2n
-                </span>
-              </div>
-            </div>
-            <div className="grid md:grid-cols-5 grid-cols-4 items-center py-3 px-8">
-              <Rank5 className="w-8 h-8" />
-              <div className="font-outfit lg:block hidden font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                3
-              </div>
-              <div className="font-outfit font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                #5
-              </div>
-              <div className="col-span-2 flex items-center space-x-2">
-                <img
-                  src="/images/userpick.png"
-                  className="w-8 h-8 rounded-full ring-2 ring-[#FF3636]"
-                  alt="avatar"
-                />
-                <span className="font-outfit text-overflow-ellipsis overflow-hidden text-ellipsis  font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                  @SEAfANSD
-                </span>
-              </div>
-            </div>
-            <div className="grid md:grid-cols-5 grid-cols-4 items-center py-3 px-8">
-              <Rank className="w-8 h-8" />
-              <div className="font-outfit lg:block hidden font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                72
-              </div>
-              <div className="font-outfit font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                #6
-              </div>
-              <div className="col-span-2 flex items-center space-x-2">
-                <img
-                  src="/images/userpick.png"
-                  className="w-8 h-8 rounded-full ring-2 ring-[#FFD800]"
-                  alt="avatar"
-                />
-                <span className="font-outfit text-overflow-ellipsis overflow-hidden text-ellipsis  font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                  @Twtbttttt
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div className="bg-[#18181B] rounded-[30px] md:p-[40px] p-[20px] w-full mb-[40px]">
-            <h2 className="font-outfit font-semibold text-[22px] leading-[22px] tracking-[0px] text-white mb-[30px]">
-              Latest Bids
-            </h2>
-
-            <div className="mb-10">
-              <div className="text-white/70 font-outfit font-medium text-[14px] leading-[14px] tracking-[-0.01em] mb-[30px]">
-                HISTORY
-              </div>
-              <div className="flex flex-col gap-7">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src="/images/userpick.png"
-                      alt=""
-                      className="w-10 h-10  rounded-full ring-2 ring-[#FFD800]"
-                    />
-                    <span className=" text-white font-medium text-overflow-ellipsis overflow-hidden text-ellipsis  md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em]">
-                      @wemby
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-white/70 font-medium md:text-[14px] text-[12px]  leading-[14px] tracking-[-0.01em]">
-                      $8.00
-                    </span>
-                    <span className="text-white/40 font-medium md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em]">
-                      FLOW
-                    </span>
-                    <span className="text-white/70 font-medium md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em] ml-6">
-                      AT 05:00 PM
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src="/images/userpick.png"
-                      alt=""
-                      className="w-10 h-10 rounded-full ring-2 ring-[#00C9FF]"
-                    />
-                    <span className="text-white font-medium text-overflow-ellipsis overflow-hidden text-ellipsis  md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em]">
-                      @MaktW2n
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-white/70 font-medium md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em]">
-                      $10.00
-                    </span>
-                    <span className="text-white/40 font-medium md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em]">
-                      FLOW
-                    </span>
-                    <span className="text-white/70 font-medium md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em] ml-6">
-                      AT 05:25 PM
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src="/images/userpick.png"
-                      alt=""
-                      className="w-10 h-10 rounded-full ring-2 ring-[#FF3636]"
-                    />
-                    <span className="text-white font-medium text-overflow-ellipsis overflow-hidden text-ellipsis  md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em]">
-                      @SEAfANSD
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-white/70 font-medium md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em]">
-                      $11.00
-                    </span>
-                    <span className="text-white/40 font-medium md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em]">
-                      FLOW
-                    </span>
-                    <span className="text-white/70 font-medium md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em] ml-6">
-                      AT 07:00 PM
-                    </span>
-                  </div>
+            {/* Info Banner */}
+            <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-xl p-4">
+              <div className="flex gap-3">
+                <Info className="w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-white/80">
+                  <p className="font-black uppercase text-orange-400 mb-1">
+                    Three-Sided Collectible
+                  </p>
+                  <p className="text-white/60">
+                    Navigate between the three views: The Moment (video), The
+                    Movie (poster), and The Universe (
+                    {moment.movie?.universe?.name || "collection"} artwork).
+                  </p>
                 </div>
               </div>
             </div>
-
-            <div className="text-white/70 font-outfit font-semibold text-[16px] mb-4">
-              HIGHEST BID:
-            </div>
-            <div className="flex items-center  justify-between bg-[#232348] rounded-[24px] px-6 py-4">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/images/userpick.png"
-                  alt=""
-                  className="w-10 h-10  rounded-full ring-2 ring-[#FFD800]"
-                />
-                <span className="text-white font-medium text-overflow-ellipsis overflow-hidden text-ellipsis  md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em]">
-                  @Twtbttttt
-                </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-white/90 font-medium md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em]">
-                  $13.00
-                </span>
-                <span className="text-white/40 font-medium md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em]">
-                  FLOW
-                </span>
-                <span className="text-white/70 font-medium md:text-[14px] text-[12px] leading-[14px] tracking-[-0.01em] ml-6">
-                  AT 09:00 PM
-                </span>
-              </div>
-            </div>
           </div>
         </div>
-        {/* <div>
-          <div className="bg-[#18181B] items-center justify-center  flex flex-wrap rounded-[30px] p-[40px] w-full max-w-5xl mx-auto  gap-8">
-           
-            <div className="bg-gradient-to-br from-[#3B1952]  via-[#24113B] min-w-[160px] to-[#18181B] rounded-[32px] p-8 flex flex-col items-center">
-              <div className="w-28 h-3 rounded-[12px] bg-gradient-to-r from-[#A136E2] to-[#7035FF] opacity-80 mb-5" />
-              <InfoRow title="UNLISTED" value="OWNED" />
-              <div className="font-outfit font-medium text-[34px] leading-[34px] tracking-[-0.03em] text-white px-5 py-2">
-                306
-              </div>
-            </div>
-      
-            <div className="bg-gradient-to-br from-[#212142] via-[#222D60] min-w-[160px] to-[#18181B] rounded-[32px] p-8 flex flex-col items-center">
-              <div className="w-28 h-3 rounded-[12px] bg-gradient-to-r from-[#4266F6] to-[#12B8F6] opacity-80 mb-5" />
-              <InfoRow title="FOR SALE" value="OWNED" />
-              <div className="font-outfit font-medium text-white text-[34px] leading-[34px] tracking-[-0.03em]  rounded-lg px-5 py-2">
-                198
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-br from-[#193952] via-[#164A6E] min-w-[160px] to-[#18181B] rounded-[32px] p-8 flex flex-col items-center">
-              <div className="w-28 h-3 rounded-[12px] bg-gradient-to-r from-[#4EDEFB] to-[#179FE9] opacity-80 mb-5" />
-              <InfoRow title="LOCKED" value="OWNED" />
-              <div className="font-outfit font-medium text-[34px] leading-[34px] tracking-[-0.03em] text-white px-5 py-2">
-                459
-              </div>
-            </div>
-      
-            <div className="bg-gradient-to-br from-[#143D30] via-[#1F3928] min-w-[160px] to-[#18181B] rounded-[32px] p-8 flex flex-col items-center">
-              <div className="w-28 h-3 rounded-[12px] bg-gradient-to-r from-[#48B968] to-[#A8EB36] opacity-80 mb-5" />
-              <div className="font-outfit font-normal text-[10px] leading-[14px] tracking-[-0.01em] text-white">
-                HIDDEN IN PACKS
-              </div>
-
-              <div className="font-outfit font-medium text-[34px] leading-[34px] tracking-[-0.03em] text-white px-5 py-2">
-                1.389
-              </div>
-            </div>
-      
-            <div className="bg-gradient-to-br from-[#595D1A] via-[#47471C] min-w-[160px] to-[#18181B] rounded-[32px] p-8 flex flex-col items-center">
-              <div className="w-28 h-3 rounded-[12px] bg-gradient-to-r from-[#E2CF36] to-[#B0A623] opacity-80 mb-5" />
-              <div className="font-outfit font-normal text-[10px] leading-[14px] tracking-[-0.01em] text-white">
-                IN THE LOCKER
-              </div>
-              <div className="font-outfit font-medium text-[34px] leading-[34px] tracking-[-0.03em] text-white px-5 py-2">
-                94
-              </div>
-            </div>
-         
-            <div className="bg-gradient-to-br  min-w-[160px] from-[#5E231C] via-[#321914] to-[#18181B] rounded-[32px] p-8 flex flex-col items-center">
-              <div className="w-28 h-3 rounded-[12px] bg-gradient-to-r from-[#E26436] to-[#E23836] opacity-80 mb-5" />
-              <div className="font-outfit font-normal text-[10px] leading-[14px] tracking-[-0.01em] text-white">
-                BURNED
-              </div>
-              <div className="font-outfit font-medium text-[34px] leading-[34px] tracking-[-0.03em] text-white px-5 py-2">
-                35
-              </div>
-            </div>
-          </div>
-        </div> */}
-      </section>
+      </div>
     </div>
   );
 };
