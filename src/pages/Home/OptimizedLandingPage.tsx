@@ -77,13 +77,13 @@ export function OptimizedLandingPage({
     moments?.slice(0, 8).map((moment) => ({
       id: `pack-${moment.moment_id}`,
       tier: moment.tier as "founders" | "legendary" | "rare" | "common",
-      title: `${moment.movie?.title || 'Movie'} Collection`,
+      title: `${moment.movie?.title || moment.title || 'Movie'} Collection`,
       tierLabel: moment.tier?.toUpperCase() || 'COMMON',
-      tagline: `Collect moments from ${moment.movie?.title || 'this movie'}`,
+      tagline: `Collect moments from ${moment.movie?.title || moment.title || 'this movie'}`,
       currentBid: "Starting at $9.99",
-      description: `Iconic moments from ${moment.movie?.title || 'cinema'}`,
+      description: `Iconic moments from ${moment.movie?.title || moment.title || 'cinema'}`,
       characterName: moment.characters?.[0]?.name || "Featured Character",
-      subtitle: `${moment.movie?.release_year || '2024'}`,
+      subtitle: `${moment.movie?.release_year || moment.date_of_moment || '2024'}`,
       image: moment.poster_url || moment.movie?.poster_url || "",
       momentCount: 5,
       guaranteedLegendary: moment.tier === "legendary",
@@ -205,7 +205,7 @@ export function OptimizedLandingPage({
                 backgroundClip: "text",
               }}
             >
-              {moments?.[0]?.movie.title || "Horror Classics"} Collection
+              {moments?.[0]?.movie?.title || moments?.[0]?.title || "Horror Classics"} Collection
             </p>
 
             {/* Call to Action */}
