@@ -4,7 +4,6 @@ import { useGetMomentById } from "@/shared/hooks/api/moments/useGetMomentById";
 import { Loader, Input } from "@mantine/core";
 import { useAppSelector } from "@/shared/hooks/useRedux";
 import { useEffect, useMemo, useState } from "react";
-import { useGetPrice } from "@/shared/hooks/api/price/getPrice";
 import {
   sendPrepareUserTransactionForSell,
   sendTransactionForCancelListing,
@@ -33,7 +32,6 @@ export const SpecificMoment = () => {
   const { data: moment, isLoading } = useGetMomentById(id || "");
   const [price, setPrice] = useState<string>("");
   const { user } = useAppSelector((state) => state.user);
-  const { data: oneFlowPrice } = useGetPrice();
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [isBookmarked, setIsBookmarked] = useState(false);
   
@@ -302,7 +300,7 @@ export const SpecificMoment = () => {
 
               {/* Price Input */}
               <div className="mb-6">
-                <div className="text-sm text-white/60 mb-2">Set Price (FLOW)</div>
+                <div className="text-sm text-white/60 mb-2">Set Price (USD)</div>
                 <Input
                   size="lg"
                   value={price || ""}
@@ -312,14 +310,9 @@ export const SpecificMoment = () => {
                     input: "bg-white/5 border-white/20 text-white placeholder:text-white/40 text-2xl font-bold",
                   }}
                   leftSection={
-                    <span className="text-white/40 uppercase text-sm font-bold">F</span>
+                    <span className="text-white/40 text-sm font-bold">$</span>
                   }
                 />
-                {oneFlowPrice && price && (
-                  <div className="text-white/40 text-sm mt-2">
-                    ≈ ${(Number(price) * oneFlowPrice).toFixed(2)} USD
-                  </div>
-                )}
               </div>
 
               {/* Stats */}
@@ -334,7 +327,7 @@ export const SpecificMoment = () => {
                   <div className="bg-white/5 rounded-xl p-3">
                     <div className="text-xs text-white/60 mb-1">Avg Sale</div>
                     <div className="font-black text-xl">
-                      {avgSale.toFixed(2)} F
+                      ${avgSale.toFixed(2)}
                     </div>
                   </div>
                 )}

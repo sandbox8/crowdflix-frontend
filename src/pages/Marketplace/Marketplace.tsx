@@ -499,10 +499,11 @@ export const Marketplace = () => {
                   />
                   <NumberInput
                     radius={100}
-                    prefix="FLOW "
+                    prefix="$ "
                     hideControls
                     value={price}
                     onChange={(value) => setPrice(Number(value))}
+                    placeholder="0.00"
                     className="max-w-[240px]"
                     classNames={{
                       input:
@@ -808,10 +809,11 @@ export const Marketplace = () => {
                 />
                 <NumberInput
                   radius={100}
-                  prefix="FLOW "
+                  prefix="$ "
                   hideControls
                   value={price}
                   onChange={(value) => setPrice(Number(value))}
+                  placeholder="0.00"
                   className="max-w-[240px]"
                   classNames={{
                     input:

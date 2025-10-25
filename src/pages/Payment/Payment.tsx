@@ -121,139 +121,149 @@ const Payment = () => {
   };
 
   return (
-    <div className="w-full flex mt-[50px] gap-[20px] flex-col items-center">
-      <h1 className="text-white text-[52px] font-semibold">Purchase Options</h1>
-      <div className="md:flex flex-col md:flex-row gap-5 justify-between w-full">
-        <div className="flex flex-col md:p-[40px] p-[20px] bg-[#1A1A1A]/70 backdrop-blur-[35px] rounded-[30px] mb-[40px] w-full max-w-[893px]">
-          <div className="flex flex-col gap-2 md:flex-row items-center justify-between">
-            <h2 className="font-outfit font-semibold text-sm leading-[22px] text-white">
-              {moment?.activeListings?.length || 0} AVAILABLE
-            </h2>
-            <Select
-              radius={100}
-              className="md:max-w-[240px] w-full"
-              classNames={{
-                input:
-                  "bg-[#1A1A1A] border h-[40px] border-[#FFC03F]/40 text-[#FFDD99] placeholder:text-[#FFDD99] bg-[#FD4725]/5",
-                dropdown:
-                  "bg-[#1A1A1A]/10 backdrop-blur-sm border border-[#FFC03F]/40 text-[#FFDD99] rounded-[10px]",
-                option: "hover:bg-[#1A1A1A]/60 hover:text-[#FFDD99]",
-              }}
-              placeholder="Sort by"
-              onChange={(value) => {
-                if (value) {
-                  setSortBy(value as "title" | "created_at" | "tier");
-                }
-              }}
-              data={[
-                { value: "title", label: "Title" },
-                { value: "created_at", label: "Newest" },
-                { value: "tier", label: "Tier" },
-              ]}
-            />
-          </div>
-          <div className="w-full lg:max-w-3xl mx-auto mt-8">
-            <div className="grid grid-cols-5 items-center text-xs text-gray-400 mb-2 px-8">
-              <div className="col-span-2 lg:block hidden">STATUS</div>
-              <div className="col-span-1">PRICE</div>
-              <div className="col-span-1">USERNAME</div>
-            </div>
-
-            {moment?.activeListings?.map((listing) => (
-              <div
-                key={listing.listing_id}
-                className={clsx(
-                  "grid md:grid-cols-5 grid-cols-4 items-center py-3 px-8",
-                  selectedSeller?.listing_id === listing.listing_id &&
-                    "bg-[#442326]/70 backdrop-blur-[40px] rounded-[32px]",
-                )}
-              >
-                <Radio
-                  variant="outline"
-                  size="md"
-                  color="#EF3D37"
-                  classNames={{
-                    radio:
-                      "bg-transparent border-white/20 checked:border-[#EF3D37]",
-                  }}
-                  checked={selectedSeller?.listing_id === listing.listing_id}
-                  onChange={() => setSelectedSeller(listing)}
-                />
-                <div className="font-outfit font-medium text-[14px] lg:block hidden leading-[14px] tracking-[-0.01em] text-white">
-                  {listing.status}
-                </div>
-                <div className="font-outfit font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                  ${getUsdPrice(listing.price)}
-                </div>
-                <div className="col-span-2 flex items-center space-x-2">
-                  <img
-                    src="/images/userpick.png"
-                    className="w-8 h-8 rounded-full ring-2 ring-[#C8FE36]"
-                    alt="avatar"
-                  />
-                  <span className="font-outfit text-overflow-ellipsis overflow-hidden text-ellipsis font-medium text-[14px] leading-[14px] tracking-[-0.01em] text-white">
-                    {listing.seller.username}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+    <div className="min-h-screen bg-black text-white pt-20 pb-12">
+      <div className="container mx-auto px-4 max-w-6xl">
+        {/* Page Header */}
+        <div className="text-center mb-12">
+          <h1 className="font-black text-5xl lg:text-6xl uppercase mb-3 bg-gradient-to-r from-white via-white to-gray-300 bg-clip-text text-transparent">
+            Purchase Moment
+          </h1>
+          <p className="text-white/60">
+            Select a listing and complete your purchase
+          </p>
         </div>
-        
-        <div className="w-full max-w-[427px] bg-[#1A1A1A]/70 backdrop-blur-[35px] rounded-[30px] p-5 text-black h-fit">
-          <div className="flex flex-col p-[30px] bg-white rounded-3xl">
-            <div className="flex gap-4">
-              <div className="w-16 h-24 flex-shrink-0">
-                <img
-                  src={moment?.poster_url || "/images/paymentCardPlaceholder.png"}
-                  alt="cover"
-                  className="w-full h-full rounded-md object-cover"
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* LEFT: Available Listings */}
+          <div className="lg:col-span-2">
+            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="font-black text-xl uppercase text-white">
+                  {moment?.activeListings?.length || 0} Available Listings
+                </h2>
+                <Select
+                  radius={100}
+                  className="w-[180px]"
+                  classNames={{
+                    input:
+                      "bg-black/40 border h-[40px] border-[#2AA2FD]/40 text-white placeholder:text-white/50",
+                    dropdown:
+                      "bg-black backdrop-blur-xl border border-[#2AA2FD]/30 text-white rounded-xl",
+                    option: "hover:bg-[#2AA2FD]/20 hover:text-white text-white",
+                  }}
+                  placeholder="Sort by"
+                  onChange={(value) => {
+                    if (value) {
+                      setSortBy(value as "title" | "created_at" | "tier");
+                    }
+                  }}
+                  data={[
+                    { value: "title", label: "Title" },
+                    { value: "created_at", label: "Newest" },
+                    { value: "tier", label: "Tier" },
+                  ]}
                 />
               </div>
 
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="bg-blue-500 text-[10px] text-white font-medium px-2 py-0.5 rounded-full uppercase">
-                    Moments
-                  </span>
-                </div>
-                <h2 className="mt-2 text-lg font-semibold leading-tight">
-                  {moment?.title || "Moment"}
-                </h2>
-                <p className="text-xs opacity-60 mt-1">
-                  {moment?.characters?.[0]?.name || "Character"}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-4 border-t border-gray-700 pt-3">
-              <div className="flex items-center justify-between">
-                <p className="text-xs opacity-60">Total Amount</p>
-                <div>
-                  <p className="font-outfit font-bold text-3xl">
-                    ${selectedSeller ? getUsdPrice(selectedSeller.price) : "0.00"}
-                  </p>
-                  {selectedSeller && oneFlowPrice && (
-                    <p className="text-gray-400 uppercase text-xs ml-[5px]">
-                      ({selectedSeller.price} FLOW)
-                    </p>
-                  )}
-                </div>
+              <div className="space-y-3">
+                {moment?.activeListings?.map((listing) => (
+                  <div
+                    key={listing.listing_id}
+                    onClick={() => setSelectedSeller(listing)}
+                    className={clsx(
+                      "grid grid-cols-4 items-center p-4 rounded-2xl cursor-pointer transition-all border-2",
+                      selectedSeller?.listing_id === listing.listing_id
+                        ? "bg-gradient-to-r from-[#2AA2FD]/20 to-[#1e90ff]/20 border-[#2AA2FD]"
+                        : "bg-white/5 border-white/10 hover:border-white/30",
+                    )}
+                  >
+                    <Radio
+                      variant="outline"
+                      size="md"
+                      color="#2AA2FD"
+                      classNames={{
+                        radio:
+                          "bg-transparent border-white/20 checked:border-[#2AA2FD]",
+                      }}
+                      checked={selectedSeller?.listing_id === listing.listing_id}
+                      onChange={() => setSelectedSeller(listing)}
+                    />
+                    <div className="font-bold text-lg text-white">
+                      ${getUsdPrice(listing.price)}
+                    </div>
+                    <div className="col-span-2 flex items-center space-x-2">
+                      <img
+                        src="/images/userpick.png"
+                        className="w-8 h-8 rounded-full ring-2 ring-[#2AA2FD]/40"
+                        alt="avatar"
+                      />
+                      <span className="font-medium text-sm text-white truncate">
+                        {listing.seller.username}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-          
-          <Button
-            h={60}
-            className="mt-5 w-full transition font-medium rounded-full py-2 text-white"
-            variant="filled"
-            color="#2AA2FD"
-            onClick={handlePayment}
-            disabled={!selectedSeller || isProcessing}
-            loading={isProcessing}
-          >
-            {isProcessing ? "Redirecting to Stripe..." : "Pay with Card"}
-          </Button>
+
+          {/* RIGHT: Order Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6 sticky top-24">
+              <h3 className="font-black text-lg uppercase mb-4 text-white">
+                Order Summary
+              </h3>
+
+              <div className="flex gap-4 mb-6 pb-6 border-b border-white/10">
+                <div className="w-20 h-28 flex-shrink-0 rounded-xl overflow-hidden">
+                  <img
+                    src={moment?.poster_url || "/images/paymentCardPlaceholder.png"}
+                    alt="cover"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="bg-[#2AA2FD] text-[10px] text-white font-bold px-2 py-1 rounded-full uppercase">
+                      {moment?.tier || "Moment"}
+                    </span>
+                  </div>
+                  <h2 className="font-bold text-base text-white leading-tight mb-1">
+                    {moment?.title || "Moment"}
+                  </h2>
+                  <p className="text-xs text-white/60">
+                    {moment?.characters?.[0]?.name || "Character"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-white/60">Price</span>
+                  <span className="font-black text-2xl text-white">
+                    ${selectedSeller ? getUsdPrice(selectedSeller.price) : "0.00"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                  <span className="text-sm font-bold text-white uppercase">Total</span>
+                  <span className="font-black text-3xl text-white">
+                    ${selectedSeller ? getUsdPrice(selectedSeller.price) : "0.00"}
+                  </span>
+                </div>
+              </div>
+
+              <Button
+                h={60}
+                className="w-full transition font-black uppercase tracking-wider rounded-2xl text-white bg-gradient-to-r from-[#2AA2FD] to-[#1e90ff] hover:from-[#1e90ff] hover:to-[#2AA2FD] hover:scale-[1.02]"
+                onClick={handlePayment}
+                disabled={!selectedSeller || isProcessing}
+                loading={isProcessing}
+              >
+                {isProcessing ? "Processing..." : "Pay with Card"}
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
