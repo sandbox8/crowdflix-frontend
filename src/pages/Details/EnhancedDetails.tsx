@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { MomentVideoPlayer } from "@/shared/components/common/MomentVideoPlayer";
 import { ImageWithFallback } from "@/shared/components/common/ImageWithFallback";
+import { useGetPrice } from "@/shared/hooks/api/price/getPrice";
 
 export const EnhancedDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +28,14 @@ export const EnhancedDetails = () => {
   const { user } = useAppSelector((state) => state.user);
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const { data: oneFlowPrice } = useGetPrice();
+
+  const getUsdPrice = (flowPrice: string) => {
+    if (oneFlowPrice) {
+      return (Number(flowPrice) * oneFlowPrice).toFixed(2);
+    }
+    return "0.00";
+  };
 
   if (isLoading || !moment) {
     return (
@@ -58,21 +67,29 @@ export const EnhancedDetails = () => {
     },
   ];
 
-  const lowestAsk = moment.activeListings?.length
+  // Get lowest ask in USD
+  const lowestAsk = moment.activeListings?.length && oneFlowPrice
     ? parseFloat(
-        moment.activeListings.reduce(
-          (min, current) =>
-            Number(current.price) < Number(min) ? current.price : min,
-          moment.activeListings[0].price,
-        ),
+        getUsdPrice(
+          moment.activeListings.reduce(
+            (min, current) =>
+              Number(current.price) < Number(min) ? current.price : min,
+            moment.activeListings[0].price,
+          )
+        )
       )
     : undefined;
 
-  const avgSale = moment.activeListings?.length
-    ? moment.activeListings.reduce(
-        (sum, current) => Number(sum) + Number(current.price),
-        0,
-      ) / moment.activeListings.length
+  // Get average sale in USD
+  const avgSale = moment.activeListings?.length && oneFlowPrice
+    ? parseFloat(
+        getUsdPrice(
+          (moment.activeListings.reduce(
+            (sum, current) => Number(sum) + Number(current.price),
+            0,
+          ) / moment.activeListings.length).toString()
+        )
+      )
     : undefined;
 
   const nextMedia = () => {
@@ -299,17 +316,29 @@ export const EnhancedDetails = () => {
               {/* Action Buttons */}
               <div className="space-y-3">
                 <Button
-                  onClick={handleBuyClick}
-                  className="w-full h-14 bg-gradient-to-r from-[#2aa2fd] to-[#1e90ff] hover:from-[#1e90ff] hover:to-[#2aa2fd] text-white font-black text-lg uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02]"
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleBuyClick();
+                  }}
+                  className="w-full h-14 bg-gradient-to-r from-[#2aa2fd] to-[#1e90ff] hover:from-[#1e90ff] hover:to-[#2aa2fd] text-white font-black text-lg uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+                  style={{ pointerEvents: 'auto' }}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Buy Now
                 </Button>
 
                 <Button
-                  onClick={handleBuyClick}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleBuyClick();
+                  }}
                   variant="outline"
-                  className="w-full h-12 border-2 border-white/20 hover:bg-white/10 font-black uppercase tracking-wider transition-all"
+                  className="w-full h-12 border-2 border-white/20 hover:bg-white/10 font-black uppercase tracking-wider transition-all cursor-pointer"
+                  style={{ pointerEvents: 'auto' }}
                 >
                   <Wallet className="w-5 h-5 mr-2" />
                   Add to Account
