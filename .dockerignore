@@ -1,0 +1,17 @@
+# Ігноруємо node_modules, щоб Docker сам все ставив
+node_modules
+
+# Готовий білд, не потрібен для повторного білду
+dist
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Кеші
+*.log
+*.tsbuildinfo
