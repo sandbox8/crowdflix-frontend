@@ -75,14 +75,23 @@ export const Header = () => {
           >
             <Menu.Target>
               <Avatar
-                className="cursor-pointer"
+                className="cursor-pointer ring-2 ring-[#2AA2FD]/40 hover:ring-[#2AA2FD]/60 transition-all"
                 src={user.profile_picture_url}
                 name={user.display_name || ""}
                 size="lg"
               />
             </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
+            <Menu.Dropdown
+              classNames={{
+                dropdown: "bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/10",
+              }}
+            >
+              <Menu.Item 
+                onClick={handleLogout}
+                className="text-white hover:bg-white/10 font-bold uppercase tracking-wider"
+              >
+                Logout
+              </Menu.Item>
             </Menu.Dropdown>
           </Menu>
         </div>
