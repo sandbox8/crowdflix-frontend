@@ -7,8 +7,8 @@ import { useParams, useNavigate } from "react-router";
 import type { Listing } from "@/api/moments/getMoments";
 import clsx from "clsx";
 import { useGetPrice } from "@/shared/hooks/api/price/getPrice";
-import StripePaymentForm from "@/shared/components/payment/StripePaymentForm";
 import { enqueueSnackbar } from "notistack";
+import { createCheckoutSession } from "@/api/payments/createCheckout";
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ const Payment = () => {
   const { data: moment } = useGetMomentById(id || "");
   const { user } = useAppSelector((state) => state.user);
   const [selectedSeller, setSelectedSeller] = useState<Listing | null>(null);
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { data: oneFlowPrice } = useGetPrice();
 
   useEffect(() => {
@@ -49,41 +49,45 @@ const Payment = () => {
       return;
     }
 
-    setShowPaymentForm(true);
-  };
+    setIsProcessing(true);
 
-  const handlePaymentSuccess = async (paymentIntentId: string) => {
     try {
-      // Call backend to confirm the purchase and mint NFT
-      const response = await fetch('/api/payments/confirm-purchase', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Add auth headers here
-        },
-        body: JSON.stringify({
-          moment_id: id,
-          user_id: user?.firebase_uid,
-          payment_intent_id: paymentIntentId,
-          listing_id: selectedSeller?.listing_id,
-          price: selectedSeller?.price,
-        }),
+      // Get the first edition from the listing
+      const editionId = selectedSeller.edition?.edition_id;
+      
+      if (!editionId) {
+        throw new Error("No edition found for this listing");
+      }
+
+      // Create Stripe Checkout session
+      const response = await createCheckoutSession({
+        edition_id: editionId,
+        listing_id: selectedSeller.listing_id,
+        amount: getUsdPrice(selectedSeller.price),
+        currency: "USD",
+        payment_method: "stripe",
       });
 
-      if (response.ok) {
-        // Redirect to success page
-        navigate(`/payment/success?payment_intent=${paymentIntentId}&amount=${selectedSeller?.price}`);
+      if (response.success && response.data.checkoutUrl) {
+        // Redirect to Stripe Checkout
+        window.location.href = response.data.checkoutUrl;
       } else {
-        throw new Error('Failed to confirm purchase');
+        throw new Error("Failed to create checkout session");
       }
     } catch (error) {
-      console.error('Error confirming purchase:', error);
-      navigate(`/payment/failure?error=${encodeURIComponent('Failed to process purchase')}`);
+      console.error("Error creating checkout session:", error);
+      enqueueSnackbar(
+        error instanceof Error ? error.message : "Failed to process payment",
+        {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "right",
+          },
+        }
+      );
+      setIsProcessing(false);
     }
-  };
-
-  const handlePaymentError = (error: string) => {
-    navigate(`/payment/failure?error=${encodeURIComponent(error)}`);
   };
 
   const getUsdPrice = (flowPrice: string) => {
@@ -92,77 +96,6 @@ const Payment = () => {
     }
     return "0.00";
   };
-
-  if (showPaymentForm && selectedSeller) {
-    return (
-      <div className="w-full flex mt-[50px] gap-[20px] flex-col items-center">
-        <h1 className="text-white text-[52px] font-semibold">Complete Purchase</h1>
-        
-        <div className="w-full max-w-[600px]">
-          {/* Order Summary */}
-          <div className="bg-[#1A1A1A]/70 backdrop-blur-[35px] rounded-[30px] p-6 mb-6 border border-[#FFC03F]/20">
-            <h2 className="text-white text-xl font-semibold mb-4">Order Summary</h2>
-            
-            <div className="flex gap-4 mb-4">
-              <div className="w-16 h-24 flex-shrink-0">
-                <img
-                  src={moment?.poster_url || "/images/paymentCardPlaceholder.png"}
-                  alt="moment"
-                  className="w-full h-full rounded-md object-cover"
-                />
-              </div>
-              
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="bg-blue-500 text-[10px] text-white font-medium px-2 py-0.5 rounded-full uppercase">
-                    Moments
-                  </span>
-                </div>
-                <h3 className="text-lg font-semibold text-white leading-tight">
-                  {moment?.title || "Moment"}
-                </h3>
-                <p className="text-xs text-white/60 mt-1">
-                  {moment?.characters?.[0]?.name || "Character"}
-                </p>
-              </div>
-            </div>
-
-            <div className="border-t border-white/10 pt-4">
-              <div className="flex justify-between items-center">
-                <span className="text-white/80 text-sm">Price</span>
-                <div className="text-right">
-                  <p className="text-white font-semibold text-lg">
-                    ${getUsdPrice(selectedSeller.price)}
-                  </p>
-                  <p className="text-white/60 text-xs">
-                    ({selectedSeller.price} FLOW)
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Payment Form */}
-          <StripePaymentForm
-            amount={Number(getUsdPrice(selectedSeller.price))}
-            currency="usd"
-            onSuccess={handlePaymentSuccess}
-            onError={handlePaymentError}
-          />
-
-          <div className="text-center mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setShowPaymentForm(false)}
-              className="border-[#FFC03F]/40 text-[#FFDD99] hover:bg-[#FFC03F]/10"
-            >
-              Back to Selection
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full flex mt-[50px] gap-[20px] flex-col items-center">
@@ -293,9 +226,10 @@ const Payment = () => {
             variant="filled"
             color="#2AA2FD"
             onClick={handlePayment}
-            disabled={!selectedSeller}
+            disabled={!selectedSeller || isProcessing}
+            loading={isProcessing}
           >
-            Pay with Card
+            {isProcessing ? "Redirecting to Stripe..." : "Pay with Card"}
           </Button>
         </div>
       </div>
