@@ -23,37 +23,42 @@ export const SignInForm = ({
   });
 
   return (
-    <div className="flex w-full max-w-[520px] flex-col gap-4 lg:px-[60px] px-5 py-10 bg-[#1A1A1AB2]/70 backdrop-blur-xs rounded-[30px] lg:min-w-[440px] ">
-      <div className="flex w-full items-center justify-center">
-        <div className="relative  text-center font-bold text-white">
-          <div className="absolute inset-0 bg-[url('/images/titleBg.png')] bg-no-repeat lg:ml-[14px] ml-2 mb-4  z-20" />
-          <h1 className="relative text-[42px] leading-[44px] lg:text-[52px] lg:leading-[54px] z-10">
-            Welcome
-            <br />
-            to Crowdflix!
-          </h1>
-        </div>
+    <div className="flex w-full max-w-[520px] flex-col gap-6 lg:px-12 px-6 py-12 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border border-white/10 lg:min-w-[440px]">
+      <div className="text-center mb-2">
+        <h1 className="font-black text-4xl lg:text-5xl uppercase mb-2 bg-gradient-to-r from-white via-white to-gray-300 bg-clip-text text-transparent">
+          Welcome Back
+        </h1>
+        <p className="text-white/60 text-sm">
+          Sign in to access your collection
+        </p>
       </div>
-      <div className="flex w-full flex-col gap-[15px]">
+
+      <div className="flex w-full flex-col gap-4">
         <Input
           {...register("email")}
-          className=" w-full "
+          className="w-full"
           placeholder="Email"
           error={errors.email?.message}
         />
         <PasswordInput
           {...passwordField}
-          className=" w-full"
+          className="w-full"
           placeholder="Password"
           error={errors.password?.message}
         />
       </div>
-      <Button onClick={onSubmit}>Sign In</Button>
-      <div className="flex items-center justify-center gap-1">
-        <p className="text-white/60 ">Don't have an account? </p>
 
+      <Button 
+        onClick={onSubmit}
+        className="w-full h-12 bg-gradient-to-r from-[#2AA2FD] to-[#1e90ff] hover:from-[#1e90ff] hover:to-[#2AA2FD] text-white font-black uppercase tracking-wider transition-all hover:scale-[1.02]"
+      >
+        Sign In
+      </Button>
+
+      <div className="flex items-center justify-center gap-1 text-sm">
+        <p className="text-white/60">Don't have an account?</p>
         <p
-          className="text-[#85CBFF] cursor-pointer"
+          className="text-[#2AA2FD] cursor-pointer hover:text-[#1e90ff] font-bold transition-colors"
           onClick={() => setActiveTab("signup")}
         >
           Sign Up
