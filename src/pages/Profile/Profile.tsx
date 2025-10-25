@@ -5,6 +5,7 @@ import { Checkbox } from "@/shared/components/common/Checkbox/Checkbox";
 import { Drawer, Input, Loader } from "@mantine/core";
 import clsx from "clsx";
 import { ArrowRight, Edit, Filter, SearchNormal1 } from "iconsax-reactjs";
+import { Wallet } from "lucide-react";
 import { useState, useEffect } from "react";
 import { HoverVideoMomentCard } from "@/shared/components/common/HoverVideoMomentCard";
 
@@ -87,15 +88,16 @@ export const Profile = () => {
         {/* Profile Header */}
         <div className="text-center mb-12">
           <div className="flex justify-center items-center mb-6">
-            <div className="relative">
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#2AA2FD] to-[#1e90ff] rounded-full blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
               <img
                 src={user?.profile_picture_url || "/images/userpick.png"}
-                className="w-32 h-32 rounded-full object-cover border-4 border-[#2AA2FD]/20"
+                className="relative w-32 h-32 rounded-full object-cover border-4 border-[#2AA2FD]/40"
                 alt="user"
               />
               <button
                 onClick={() => setIsEditProfileOpen(true)}
-                className="absolute bottom-0 right-0 w-10 h-10 bg-[#2AA2FD] rounded-full flex items-center justify-center border-4 border-black hover:bg-[#1e90ff] transition-all"
+                className="absolute bottom-0 right-0 w-10 h-10 bg-gradient-to-r from-[#2AA2FD] to-[#1e90ff] rounded-full flex items-center justify-center border-4 border-black hover:scale-110 transition-all shadow-lg"
               >
                 <Edit size={18} className="text-white" />
               </button>
@@ -103,15 +105,26 @@ export const Profile = () => {
           </div>
 
           <h1 className="font-black text-5xl lg:text-6xl uppercase mb-3 bg-gradient-to-r from-white via-white to-gray-300 bg-clip-text text-transparent">
-            {user?.username}
+            {user?.username || "User"}
           </h1>
 
-          <div className="flex items-center justify-center gap-2 text-white/60 mb-8">
-            <img src="/images/flag.svg" className="w-4 h-4" alt="country" />
-            <span>United States</span>
-            <span>•</span>
-            <span>Joined November, 2024</span>
+          <div className="flex items-center justify-center gap-3 text-white/60 text-sm mb-4">
+            <div className="flex items-center gap-1.5">
+              <img src="/images/flag.svg" className="w-4 h-4" alt="country" />
+              <span>United States</span>
+            </div>
+            <span className="text-white/30">•</span>
+            <span>Joined November 2024</span>
           </div>
+
+          {user?.wallet_address && (
+            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
+              <Wallet className="w-4 h-4 text-[#2AA2FD]" />
+              <span className="text-xs text-white/60 font-mono">
+                {user.wallet_address.slice(0, 6)}...{user.wallet_address.slice(-4)}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Collection Stats */}
