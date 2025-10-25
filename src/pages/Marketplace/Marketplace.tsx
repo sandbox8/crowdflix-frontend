@@ -16,9 +16,8 @@ import { PremiumMomentCard } from "@/shared/components/common/Card/PremiumMoment
 import { useGetMoments } from "@/shared/hooks/api/moments/useGetMoments";
 import { useDebouncedCallback } from "@mantine/hooks";
 import { useGetCharacters } from "@/shared/hooks/api/characters/useGetCharacters";
-import { useNavigate, Link } from "react-router";
+import { useNavigate } from "react-router";
 import { useGetUniverse } from "../SignIn/hooks/api/universe/useGetUniverse";
-import { Logo } from "@/shared/components/common/Logo/Logo";
 
 // const activeFilter = {
 //   All: "created_at",
@@ -107,32 +106,6 @@ export const Marketplace = () => {
           filter: "blur(60px)",
         }}
       />
-
-      {/* HEADER */}
-      <header className="flex w-full items-center justify-between px-5 py-4 relative z-40">
-        <div className="flex w-[200px]">
-          <div className="bg-[url('/images/logoBg.png')] w-[87px] h-[48px] rotate-180 bg-no-repeat bg-contain" />
-          <Link to="/">
-            <Logo />
-          </Link>
-        </div>
-        <div className="flex gap-4 text-white">
-          <Link
-            className="flex items-center justify-center py-3 border rounded-full w-[130px] bg-transparent text-[#FFCBCD] hover:bg-[#F51F2D26] hover:text-white transition-all duration-300 font-medium"
-            to="/"
-          >
-            Home
-          </Link>
-          <div className="bg-gradient-to-b from-[#356FB4] to-[#693968] rounded-full flex items-center justify-center p-[1px]">
-            <Link
-              className="flex items-center justify-center py-3 rounded-full w-[130px] bg-[#170B26] text-white transition-all duration-300 font-medium"
-              to="/marketplace"
-            >
-              Marketplace
-            </Link>
-          </div>
-        </div>
-      </header>
 
       {/* MAIN CONTENT - Full width with centered content */}
       <div className="relative z-30 flex flex-col gap-4 w-full max-w-[1440px] mx-auto px-5">

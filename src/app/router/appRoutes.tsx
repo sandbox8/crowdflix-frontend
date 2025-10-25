@@ -29,7 +29,11 @@ export const appRoutes = createBrowserRouter([
   },
   {
     path: "/marketplace",
-    element: <Marketplace />,
+    element: (
+      <AppLayout>
+        <Marketplace />
+      </AppLayout>
+    ),
   },
   {
     path: "/payment/:id",
