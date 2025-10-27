@@ -24,10 +24,10 @@ export const MintingStatus: React.FC<MintingStatusProps> = ({
               <Loader2 className="w-12 h-12 text-[#2AA2FD] mx-auto animate-spin" />
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">
-              Minting Your NFT...
+              Preparing Your Moment...
             </h3>
             <p className="text-white/70 text-sm">
-              Please wait while we create your digital collectible. This usually takes 10-30 seconds.
+              Please wait while we add this moment to your collection. This usually takes 10-30 seconds.
             </p>
           </div>
         );
@@ -39,10 +39,10 @@ export const MintingStatus: React.FC<MintingStatusProps> = ({
               <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">
-              NFT Minted Successfully!
+              Moment Added Successfully!
             </h3>
             <p className="text-white/70 text-sm mb-4">
-              Your digital collectible is ready and has been added to your collection.
+              Your moment is ready and has been added to your collection.
             </p>
             {onViewCollection && (
               <Button
@@ -62,10 +62,10 @@ export const MintingStatus: React.FC<MintingStatusProps> = ({
               <XCircle className="w-12 h-12 text-[#EF3D37] mx-auto" />
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">
-              Minting Failed
+              Processing Issue
             </h3>
             <p className="text-white/70 text-sm mb-4">
-              {errorMessage || 'There was an error creating your NFT. Your payment was processed successfully.'}
+              {errorMessage || 'There was an error adding your moment. Your payment was processed successfully.'}
             </p>
             <div className="space-y-2">
               {onRetry && (
@@ -101,7 +101,7 @@ export const MintingStatus: React.FC<MintingStatusProps> = ({
               Checking Status...
             </h3>
             <p className="text-white/70 text-sm">
-              We're verifying your NFT creation status.
+              We're verifying your moment is ready.
             </p>
           </div>
         );

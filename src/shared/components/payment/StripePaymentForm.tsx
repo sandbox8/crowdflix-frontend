@@ -8,6 +8,7 @@ import {
 import { stripePromise } from '@/shared/config/stripe.config';
 import { Button } from '@/shared/components/common/Button/Button';
 import { enqueueSnackbar } from 'notistack';
+import { api } from '@/api/config/axios';
 
 interface StripePaymentFormProps {
   amount: number;
@@ -41,19 +42,12 @@ const PaymentForm: React.FC<StripePaymentFormProps> = ({
 
     try {
       // Create payment intent on backend
-      const response = await fetch('/api/payments/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Add auth headers here
-        },
-        body: JSON.stringify({
-          amount: Math.round(amount * 100), // Convert to cents
-          currency,
-        }),
+      const response = await api.post('/payments/stripe/create-intent', {
+        amount: Math.round(amount * 100), // Convert to cents
+        currency,
       });
 
-      const { clientSecret } = await response.json();
+      const { clientSecret } = response.data;
 
       if (!clientSecret) {
         throw new Error('Failed to create payment intent');

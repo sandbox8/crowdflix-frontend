@@ -10,6 +10,9 @@ export const useLogout = () => {
     mutationFn: async () => {
       const auth = getAuth();
       await signOut(auth);
+      // Clear stored tokens
+      localStorage.removeItem("token");
+      localStorage.removeItem("firebaseUid");
     },
     onSuccess: () => {
       dispatch(clearUser());

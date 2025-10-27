@@ -68,6 +68,11 @@ const Payment = () => {
       });
 
       if (response.success && response.data.checkoutUrl) {
+        // Store order_id in sessionStorage for use after Stripe redirect
+        if (response.data.orderId) {
+          sessionStorage.setItem('pending_order_id', response.data.orderId);
+        }
+        
         // Redirect to Stripe Checkout
         window.location.href = response.data.checkoutUrl;
       } else {

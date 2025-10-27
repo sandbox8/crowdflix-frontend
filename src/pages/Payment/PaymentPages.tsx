@@ -10,10 +10,21 @@ const PaymentSuccess: React.FC = () => {
   const navigate = useNavigate();
   const paymentIntentId = searchParams.get('payment_intent');
   const amount = searchParams.get('amount');
-  const orderId = searchParams.get('order_id');
+  
+  // Get order_id from URL params or sessionStorage (fallback)
+  const orderIdFromUrl = searchParams.get('order_id');
+  const orderIdFromSession = sessionStorage.getItem('pending_order_id');
+  const orderId = orderIdFromUrl || orderIdFromSession;
   
   const [pollingTimeout, setPollingTimeout] = useState(false);
   const [showMintingStatus, setShowMintingStatus] = useState(false);
+  
+  // Clear pending order from sessionStorage when component mounts
+  useEffect(() => {
+    if (orderId && orderIdFromSession) {
+      sessionStorage.removeItem('pending_order_id');
+    }
+  }, [orderId, orderIdFromSession]);
 
   // Poll order status every 3 seconds for up to 30 seconds
   const { data: orderStatus, isLoading, refetch } = useGetOrderStatus(
@@ -117,7 +128,7 @@ const PaymentSuccess: React.FC = () => {
           <CheckCircle className="w-16 h-16 text-[#2AA2FD] mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-white mb-2">Payment Successful!</h1>
           <p className="text-white/70">
-            Your NFT has been purchased and will be minted shortly.
+            Your moment has been purchased and is being prepared for your collection.
           </p>
         </div>
 
@@ -156,7 +167,7 @@ const PaymentSuccess: React.FC = () => {
 
         <div className="mt-6 pt-6 border-t border-white/10">
           <p className="text-white/60 text-sm">
-            You'll receive an email confirmation shortly. Your NFT will appear in your collection once minting is complete.
+            You'll receive an email confirmation shortly. Your moment will appear in your collection once processing is complete.
           </p>
         </div>
       </div>

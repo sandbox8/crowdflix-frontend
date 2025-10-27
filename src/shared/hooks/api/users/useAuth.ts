@@ -7,6 +7,13 @@ export const useLogin = () => {
       login(email, password),
     onSuccess: (data) => {
       localStorage.setItem("token", data.idToken);
+      
+      // Store Firebase UID if available
+      if (data.user?.firebase_uid) {
+        localStorage.setItem("firebaseUid", data.user.firebase_uid);
+      } else if (data.user?.id) {
+        localStorage.setItem("firebaseUid", data.user.id);
+      }
     },
   });
 };
@@ -24,5 +31,15 @@ export const useRegister = () => {
       firstName: string;
       lastName: string;
     }) => register(email, password, firstName, lastName),
+    onSuccess: (data) => {
+      localStorage.setItem("token", data.idToken);
+      
+      // Store Firebase UID if available
+      if (data.user?.firebase_uid) {
+        localStorage.setItem("firebaseUid", data.user.firebase_uid);
+      } else if (data.user?.id) {
+        localStorage.setItem("firebaseUid", data.user.id);
+      }
+    },
   });
 };
