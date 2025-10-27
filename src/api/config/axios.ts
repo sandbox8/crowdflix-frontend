@@ -73,8 +73,9 @@ api.interceptors.response.use(
           return Promise.reject(error);
         }
       } else {
-        // No user logged in, clear token
+        // No user logged in, clear token and DON'T retry (prevents infinite loop)
         localStorage.removeItem("token");
+        return Promise.reject(error);
       }
     }
 
