@@ -13,7 +13,7 @@ import clsx from "clsx";
 import { ArrowLeft, Filter, SearchNormal1 } from "iconsax-reactjs";
 import { useState } from "react";
 import { PremiumMomentCard } from "@/shared/components/common/Card/PremiumMomentCard";
-import { useGetMoments } from "@/shared/hooks/api/moments/useGetMoments";
+import { useGetMarketplaceListings } from "@/shared/hooks/api/marketplace/useGetMarketplaceListings";
 import { useDebouncedCallback } from "@mantine/hooks";
 import { useGetCharacters } from "@/shared/hooks/api/characters/useGetCharacters";
 import { useNavigate } from "react-router";
@@ -60,21 +60,49 @@ export const Marketplace = () => {
   const { data: universes } = useGetUniverse({ page: 1, limit: 100 });
 
   const {
-    data: moments,
+    data: listings,
     isLoading,
     isRefetching,
-  } = useGetMoments({
+  } = useGetMarketplaceListings({
     page: 1,
-    limit: 8,
-    sortBy: sortBy,
-    sortOrder: "DESC",
-    status: activeStatus,
-    universe: selectedUniverse,
+    limit: 100,
+    status: "active",
     tier: activeTier,
     price: price,
     search: search,
     characters: selectedCharacters,
+    universe: selectedUniverse,
   });
+
+  // Group listings by unique moment
+  const groupedMoments = listings?.reduce((acc, listing) => {
+    const momentId = listing.edition.moment.moment_id;
+    const price = parseFloat(listing.price);
+    
+    if (!acc[momentId]) {
+      acc[momentId] = {
+        moment: listing.edition.moment,
+        listings: [],
+        lowestAsk: Infinity,
+        totalCount: 0,
+      };
+    }
+    
+    acc[momentId].listings.push(listing);
+    if (price < acc[momentId].lowestAsk) {
+      acc[momentId].lowestAsk = price;
+    }
+    acc[momentId].totalCount++;
+    
+    return acc;
+  }, {} as Record<string, {
+    moment: any;
+    listings: any[];
+    lowestAsk: number;
+    totalCount: number;
+  }>) || {};
+
+  const uniqueMoments = Object.values(groupedMoments);
 
   const handleSearch = (value: string) => {
     setSearch(value);
@@ -137,13 +165,13 @@ export const Marketplace = () => {
           </p>
 
           {/* Quick Stats */}
-          {moments && moments.length > 0 && (
+          {listings && listings.length > 0 && (
             <div className="flex gap-6 justify-center text-sm mt-4">
               <div className="flex items-center gap-2">
                 <span className="text-[#2AA2FD] font-bold">
-                  {moments.length}
+                  {listings.length}
                 </span>
-                <span className="text-white/60">Moments Available</span>
+                <span className="text-white/60">Listings Available</span>
               </div>
             </div>
           )}
@@ -180,6 +208,7 @@ export const Marketplace = () => {
                     dropdown:
                       "bg-[#1A1A1A] backdrop-blur-xl border border-[#2AA2FD]/30 text-white rounded-[10px]",
                     option: "hover:bg-[#2AA2FD]/20 hover:text-white text-white",
+                    section: "text-white",
                   }}
                   placeholder="Sort by"
                   onChange={(value) => {
@@ -382,6 +411,7 @@ export const Marketplace = () => {
                         "bg-[#1A1A1A] backdrop-blur-xl border border-[#2AA2FD]/30 text-white rounded-[10px]",
                       option:
                         "hover:bg-[#2AA2FD]/20 hover:text-white text-white",
+                      section: "text-white",
                     }}
                     onChange={(value) => {
                       if (value) {
@@ -444,6 +474,7 @@ export const Marketplace = () => {
                         "bg-[#1A1A1A] backdrop-blur-xl border border-[#2AA2FD]/30 text-white rounded-[10px]",
                       option:
                         "hover:bg-[#2AA2FD]/20 hover:text-white text-white",
+                      section: "text-white",
                     }}
                     onChange={(value) => {
                       if (value) {
@@ -522,19 +553,19 @@ export const Marketplace = () => {
               <div className="col-span-full flex justify-center h-[350px] items-center">
                 <Loader size="xl" color="#2AA2FD" />
               </div>
-            ) : moments && moments.length > 0 ? (
-              moments.map((item) => (
+            ) : uniqueMoments && uniqueMoments.length > 0 ? (
+              uniqueMoments.map((grouped) => (
                 <PremiumMomentCard
-                  key={item.moment_id}
-                  moment={item}
-                  onClick={() => navigate(`/details/${item.moment_id}`)}
+                  key={grouped.moment.moment_id}
+                  moment={grouped.moment}
+                  onClick={() => navigate(`/details/${grouped.moment.moment_id}`)}
                 />
               ))
             ) : (
               <div className="col-span-full flex justify-center items-center h-[350px]">
                 <div className="text-center">
                   <h3 className="text-white text-2xl font-bold mb-2">
-                    No Moments Found
+                    No Listings Found
                   </h3>
                   <p className="text-white/60">
                     Try adjusting your filters or search terms
